@@ -28,9 +28,9 @@ export function filterEvents<T extends SearchableEvent>(events: T[], { q, where 
     });
 }
 
-export type EventFormat = EventFields["mode"];
+export type EventMode = EventFields["mode"];
 
-export const isEventFormat = (value?: string): value is EventFormat =>
+export const isEventMode = (value?: string): value is EventMode =>
     value === "online" || value === "in-person" || value === "hybrid";
 
 type DatedEvent = Pick<EventFields, "date" | "time">;

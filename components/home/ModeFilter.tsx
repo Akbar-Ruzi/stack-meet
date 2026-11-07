@@ -1,27 +1,27 @@
 import Link from "next/link";
 import { FORMAT_LABELS } from "@/lib/event-display";
-import type { EventFormat, EventSearch } from "@/lib/event-search";
+import type { EventMode, EventSearch } from "@/lib/event-search";
 
-const OPTIONS: { value?: EventFormat; label: string }[] = [
+const OPTIONS: { value?: EventMode; label: string }[] = [
     { label: "All" },
     { value: "online", label: FORMAT_LABELS.online },
     { value: "in-person", label: FORMAT_LABELS["in-person"] },
     { value: "hybrid", label: FORMAT_LABELS.hybrid },
 ];
 
-type FormatFilterProps = EventSearch & { format?: EventFormat };
+type ModeFilterProps = EventSearch & { mode?: EventMode };
 
-// Each pill is a link that keeps the current search and sets ?format=, so the choice
+// Each pill is a link that keeps the current search and sets ?mode=, so the choice
 // survives a refresh and can be shared.
-const FormatFilter = ({ q, where, format }: FormatFilterProps) => (
+const ModeFilter = ({ q, where, mode }: ModeFilterProps) => (
     <nav aria-label="Filter by format" className="flex flex-wrap gap-2">
         {OPTIONS.map(({ value, label }) => {
             const params = new URLSearchParams();
             if (q) params.set("q", q);
             if (where) params.set("where", where);
-            if (value) params.set("format", value);
+            if (value) params.set("mode", value);
             const query = params.toString();
-            const selected = value === format;
+            const selected = value === mode;
 
             return (
                 <Link
@@ -40,4 +40,4 @@ const FormatFilter = ({ q, where, format }: FormatFilterProps) => (
     </nav>
 );
 
-export default FormatFilter;
+export default ModeFilter;

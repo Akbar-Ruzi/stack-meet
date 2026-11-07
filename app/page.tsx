@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Hero from "@/components/home/Hero";
-import FormatFilter from "@/components/home/FormatFilter";
+import ModeFilter from "@/components/home/ModeFilter";
 import HostBox from "@/components/home/HostBox";
 import EventCard from "@/components/events/EventCard";
 import { EventFields } from "@/database";
@@ -11,8 +11,8 @@ import {
     filterEvents,
     firstParam,
     getUpcomingEvents,
-    isEventFormat,
-    type EventFormat,
+    isEventMode,
+    type EventMode,
     type EventSearch,
 } from "@/lib/event-search";
 
@@ -22,7 +22,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 const NEXT_UP_LIMIT = 9;
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
-type HomeQuery = EventSearch & { format?: EventFormat };
+type HomeQuery = EventSearch & { mode?: EventMode };
 
 // TEMPORARY: in development, mock-data/events.json (git-ignored, local only) replaces the
 // database so the UI can be built with sample events. Delete the file to use real data.
@@ -36,12 +36,12 @@ async function readMockEvents(): Promise<EventFields[] | null> {
 }
 
 async function NextUp({ query }: { query: Promise<HomeQuery> }) {
-    const { q, where, format } = await query;
+    const { q, where, mode } = await query;
     const allEvents: EventFields[] =
         (await readMockEvents()) ?? (await (await fetch(`${BASE_URL}/api/events`)).json()).events ?? [];
 
     const events = filterEvents(getUpcomingEvents(allEvents), { q, where })
-        .filter((event) => !format || event.mode === format)
+        .filter((event) => !mode || event.mode === mode)
         .slice(0, NEXT_UP_LIMIT);
 
     return (
@@ -51,7 +51,7 @@ async function NextUp({ query }: { query: Promise<HomeQuery> }) {
                     <p className="font-mono text-[13px] text-muted">upcoming</p>
                     <h2 className="mt-1.5 text-4xl font-bold tracking-[-0.02em]">Next up</h2>
                 </div>
-                <FormatFilter q={q} where={where} format={format} />
+                <ModeFilter q={q} where={where} mode={mode} />
             </div>
 
             {events.length === 0 ? (
@@ -74,11 +74,11 @@ async function NextUp({ query }: { query: Promise<HomeQuery> }) {
 
 export default function Page({ searchParams }: { searchParams: SearchParams }) {
     const query = searchParams.then((params) => {
-        const format = firstParam(params.format);
+        const mode = firstParam(params.mode);
         return {
             q: firstParam(params.q),
             where: firstParam(params.where),
-            format: isEventFormat(format) ? format : undefined,
+            mode: isEventMode(mode) ? mode : undefined,
         };
     });
 
