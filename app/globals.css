@@ -176,10 +176,6 @@
 
 @layer components {
 
-    .explore-btn {
-        @apply border-dark-200 bg-dark-100 flex-center w-fit cursor-pointer gap-2 rounded-full border px-8 py-3.5 text-center max-sm:w-full;
-    }
-
     .event-form {
         @apply bg-dark-100 border-dark-200 card-shadow mx-auto w-full max-w-4xl rounded-[10px] border px-5 py-6 sm:px-8;
     }
