@@ -9,9 +9,9 @@ const VARIANTS = {
 };
 
 const SIZES = {
-    lg: "min-h-[52px] px-[22px] text-base",
+    lg: "min-h-13 px-5.5 text-base",
     md: "min-h-11 px-3.5 text-sm",
-    dialog: "min-h-11 px-[18px] text-[15px]",
+    dialog: "min-h-11 px-4.5 text-[15px]",
 };
 
 type ButtonStyle = {

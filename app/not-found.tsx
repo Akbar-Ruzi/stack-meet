@@ -2,8 +2,8 @@ import Link from "next/link";
 
 export default function NotFound() {
     return (
-        <div data-full-width data-not-found className="flex flex-1 items-center justify-center px-6 pb-24 pt-[72px]">
-            <div className="flex max-w-[480px] flex-col items-center text-center">
+        <div data-full-width data-not-found className="flex flex-1 items-center justify-center px-6 pb-24 pt-18">
+            <div className="flex max-w-120 flex-col items-center text-center">
                 <p className="font-mono text-[14px] text-accent">{"// error 404"}</p>
                 <p aria-hidden="true" className="mt-3 font-mono text-[128px] font-medium leading-none tracking-[-0.04em] text-border max-[641px]:text-[96px]">
                     404
@@ -14,7 +14,7 @@ export default function NotFound() {
                 <p className="mt-3 text-base leading-normal text-muted">
                     The link may be broken, or the event may have been removed.
                 </p>
-                <Link href="/" className="mt-7 inline-flex min-h-12 items-center gap-2 rounded-[10px] bg-accent px-[22px] text-base font-bold text-on-accent">
+                <Link href="/" className="mt-7 inline-flex min-h-12 items-center gap-2 rounded-[10px] bg-accent px-5.5 text-base font-bold text-on-accent">
                     ← Back to events
                 </Link>
             </div>

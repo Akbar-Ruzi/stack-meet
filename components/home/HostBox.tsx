@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const HostBox = () => (
-    <section className="mx-auto max-w-[1200px] px-6 pb-24">
+    <section className="mx-auto max-w-300 px-6 pb-24">
         <div className="flex flex-wrap items-center justify-between gap-6 rounded-[20px] border border-dashed border-border bg-surface p-12 max-[641px]:gap-5 max-[641px]:px-5 max-[641px]:py-6">
             <div className="flex-[1_1_420px]">
                 <p className="font-mono text-[13px] text-accent">$ stackmeet create</p>

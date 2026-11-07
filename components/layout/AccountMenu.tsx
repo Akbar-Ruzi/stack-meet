@@ -14,7 +14,7 @@ const getInitials = ({ name, email }: AccountUser) => {
     return (words[0] ?? email ?? "?").slice(0, 2).toUpperCase();
 };
 
-const ITEM_CLASSES = "flex min-h-11 w-full cursor-pointer items-center rounded-[8px] px-3 text-left text-[15px]";
+const ITEM_CLASSES = "flex min-h-11 w-full cursor-pointer items-center rounded-md px-3 text-left text-[15px]";
 
 const AccountMenu = ({ user }: { user: AccountUser }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -73,11 +73,11 @@ const AccountMenu = ({ user }: { user: AccountUser }) => {
                 <div
                     ref={menuRef}
                     role="menu"
-                    className="absolute right-0 top-[52px] z-20 w-60 rounded-[12px] border border-border bg-surface p-2 shadow-[0_12px_32px_rgba(0,0,0,0.5)]"
+                    className="absolute right-0 top-13 z-20 w-60 rounded-[12px] border border-border bg-surface p-2 shadow-[0_12px_32px_rgba(0,0,0,0.5)]"
                 >
                     <div className="mb-1.5 border-b border-line px-3 pb-3 pt-2.5">
-                        <div className="break-words font-bold">{user.name}</div>
-                        <div className="break-words text-[13px] text-muted">{user.email}</div>
+                        <div className="wrap-break-word font-bold">{user.name}</div>
+                        <div className="wrap-break-word text-[13px] text-muted">{user.email}</div>
                     </div>
                     <Link role="menuitem" href="/me?tab=hosting" onClick={close} className={`${ITEM_CLASSES} text-text`}>
                         Events I&apos;m hosting

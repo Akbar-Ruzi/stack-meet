@@ -5,11 +5,11 @@ const POPULAR_TAGS = ["react", "ai", "typescript", "python", "open-source"];
 
 const LABEL_CLASSES = "flex flex-col gap-2 font-mono text-xs text-muted";
 const FIELD_CLASSES =
-    "h-[52px] rounded-[10px] border border-border bg-field px-4 font-sans text-base text-text placeholder:text-muted";
+    "h-13 rounded-[10px] border border-border bg-field px-4 font-sans text-base text-text placeholder:text-muted";
 
 // The search reloads the home page with ?q=…&where=…, and "Next up" shows the matching events.
 const SearchForm = ({ q, where }: EventSearch) => (
-    <form role="search" action="/#events" method="get" className="mt-10 flex max-w-[860px] flex-wrap items-end gap-3">
+    <form role="search" action="/#events" method="get" className="mt-10 flex max-w-215 flex-wrap items-end gap-3">
         <label className={`flex-[2_1_300px] ${LABEL_CLASSES}`}>
             what
             <input type="search" name="q" defaultValue={q} placeholder="React, AI, hackathon…" className={FIELD_CLASSES} />
@@ -20,7 +20,7 @@ const SearchForm = ({ q, where }: EventSearch) => (
         </label>
         <button
             type="submit"
-            className="h-[52px] cursor-pointer rounded-[10px] bg-accent px-6 text-base font-bold text-on-accent max-[641px]:flex-[1_1_100%]"
+            className="h-13 cursor-pointer rounded-[10px] bg-accent px-6 text-base font-bold text-on-accent max-[641px]:flex-[1_1_100%]"
         >
             Search events
         </button>
@@ -33,7 +33,7 @@ const SearchFormWithValues = async ({ search }: { search: Promise<EventSearch> }
 );
 
 const Hero = ({ search }: { search: Promise<EventSearch> }) => (
-    <section className="mx-auto max-w-[1200px] px-6 pb-[72px] pt-24">
+    <section className="mx-auto max-w-300 px-6 pb-18 pt-24">
         <p className="font-mono text-sm text-accent">{"// hackathons · meetups · conferences"}</p>
 
         <h1 className="mt-5 bg-none text-[clamp(48px,7vw,92px)] font-bold leading-[0.98] tracking-[-0.035em] text-text max-[641px]:whitespace-nowrap max-[641px]:text-[38px] max-[641px]:leading-[1.05] max-[351px]:text-[32px]">
@@ -42,7 +42,7 @@ const Hero = ({ search }: { search: Promise<EventSearch> }) => (
             dev event.
         </h1>
 
-        <p className="mt-6 max-w-[560px] text-xl leading-normal text-muted max-[641px]:text-[17px]">
+        <p className="mt-6 max-w-140 text-xl leading-normal text-muted max-[641px]:text-[17px]">
             Search what&apos;s happening near you or online, save a spot with one email, and host your own in
             minutes.
         </p>

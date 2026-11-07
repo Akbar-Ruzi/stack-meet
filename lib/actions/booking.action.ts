@@ -52,7 +52,7 @@ export const getBookingCount = async (eventId: string) => {
     }
 };
 
-export const createBooking = async ({eventId, slug: _slug, email, name, phone}: CreateBookingParams) => {
+export const createBooking = async ({eventId, email, name, phone}: CreateBookingParams) => {
     try {
         const cleanName = cleanText(name);
         const normalizedEmail = cleanText(email).toLowerCase();

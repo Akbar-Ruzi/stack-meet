@@ -32,9 +32,9 @@ const Navbar = ({ user }: { user: AccountUser | null }) => {
 
     return (
         <header className="border-b border-line" onClickCapture={blockWhileLocked}>
-            <div className="mx-auto flex max-w-[1248px] [body:has([data-not-found]:not([style*=none]))_&]:max-w-[1200px] flex-wrap items-center justify-between gap-4 px-6 py-4 max-[641px]:gap-x-2 max-[641px]:gap-y-1.5 max-[641px]:px-4 max-[641px]:py-3 max-[641px]:after:order-1 max-[641px]:after:basis-full max-[641px]:after:content-['']">
+            <div className="mx-auto flex max-w-312 [body:has([data-not-found]:not([style*=none]))_&]:max-w-300 flex-wrap items-center justify-between gap-4 px-6 py-4 max-[641px]:gap-x-2 max-[641px]:gap-y-1.5 max-[641px]:px-4 max-[641px]:py-3 max-[641px]:after:order-1 max-[641px]:after:basis-full max-[641px]:after:content-['']">
                 <Link href="/" className="flex min-h-11 items-center gap-2.5 text-xl font-bold">
-                    <span aria-hidden="true" className="flex size-8 items-center justify-center rounded-[8px] bg-accent text-[16px] tracking-[-0.02em] text-on-accent">
+                    <span aria-hidden="true" className="flex size-8 items-center justify-center rounded-md bg-accent text-[16px] tracking-[-0.02em] text-on-accent">
                         SM
                     </span>
                     {/* The avatar needs this room on narrow phones. Screen readers still get the name. */}
@@ -56,7 +56,7 @@ const Navbar = ({ user }: { user: AccountUser | null }) => {
                     })}
                     <Link
                         href="/events/create"
-                        className="ml-1.5 rounded-[8px] bg-accent px-[18px] py-3 font-bold text-on-accent max-[641px]:ml-auto max-[641px]:px-3.5 max-[641px]:py-2.5"
+                        className="ml-1.5 rounded-md bg-accent px-4.5 py-3 font-bold text-on-accent max-[641px]:ml-auto max-[641px]:px-3.5 max-[641px]:py-2.5"
                     >
                         Create event
                     </Link>

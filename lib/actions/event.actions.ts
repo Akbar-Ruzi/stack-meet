@@ -14,7 +14,7 @@ export const getSimilarEventsBySlug = async({slug}: getSimilarEventsBySlugParams
             _id:{$ne: event?._id},
             tags: {$in: event?.tags}
         }).lean<EventFields[]>(); // <- plain JS objects typed as EventFields[]
-    } catch (e) {
+    } catch {
         return[];
     }
 }

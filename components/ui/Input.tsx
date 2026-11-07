@@ -40,7 +40,7 @@ export const Input = ({ id, label, hint, error, className = "", ...props }: Inpu
             id={id}
             aria-invalid={error ? true : undefined}
             aria-describedby={describedBy({ id, label, hint, error })}
-            className={`h-[50px] ${CONTROL_CLASSES} ${borderClass(error)} ${className}`}
+            className={`h-12.5 ${CONTROL_CLASSES} ${borderClass(error)} ${className}`}
             {...props}
         />
     </Field>
