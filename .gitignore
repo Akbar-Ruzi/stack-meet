@@ -45,3 +45,6 @@ next-env.d.ts
 
 # local-only notes
 /design-and-plan/
+
+# local-only sample data for building the UI
+/mock-data/

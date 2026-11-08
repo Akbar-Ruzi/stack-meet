@@ -86,6 +86,34 @@ stack-meet/
 └── next.config.ts              # Next.js configuration
 ```
 
+## Project structure and conventions
+
+Each file has one job: pages put sections together, components render UI, and logic lives in plain functions or hooks.
+
+### Where code goes
+
+| Kind of code | Folder | Example |
+|---|---|---|
+| Routes: pages, layouts, API handlers | `app/` | `app/events/[slug]/page.tsx` |
+| Building blocks shared across the site | `components/ui/` | `Button`, `Input`, `FormatBadge` |
+| Components for one area of the site | `components/<area>/` | `components/home/Hero.tsx` |
+| Custom hooks used by more than one component | `hooks/` | `useDropdownMenu` |
+| Plain functions, types and constants | `lib/` | `lib/event-search.ts` |
+| Database reads and permission checks | `lib/data/` | event queries, marked `server-only` |
+| Server Actions that change data | `lib/actions/` | `createBooking` |
+
+### Conventions
+
+- **Components render UI.** Keep them small, with one component per file, named in PascalCase.
+- **Custom hooks (`useX`) hold client-side state and behavior**, like form state or a toggle, so components stay readable.
+- **Plain functions in `lib/` hold logic that isn't React:** formatting, filtering, validation and database access.
+- **Colocate first, share later.** Keep code next to where it's used, and move it to a shared folder only when a second place needs it.
+- **Server Components by default.** Add `"use client"` only where interactivity is needed, as low in the tree as possible.
+- **Fetch data on the server**, in Server Components or server functions, not in `useEffect`. A Server Component calls the data functions directly instead of fetching the app's own `/api` routes.
+- **Keep a data access layer.** Database reads and auth checks live in `lib/data/`, marked `import "server-only"`, so they can't leak into client code.
+- **Server Actions are for changing data.** Each one is a public endpoint, so it checks the user and validates its input every time.
+- **Keep pages thin.** `page.tsx` reads params, calls data functions and arranges components, and that's all.
+
 ## How it works
 
 ### Booking a spot

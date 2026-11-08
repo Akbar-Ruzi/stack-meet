@@ -1,45 +1,104 @@
-import ExploreBtn from "@/components/home/ExploreBtn";
+import Link from "next/link";
+import Hero from "@/components/home/Hero";
+import ModeFilter from "@/components/home/ModeFilter";
+import HostBox from "@/components/home/HostBox";
 import EventCard from "@/components/events/EventCard";
 import { EventFields } from "@/database";
 import { Suspense } from "react";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import {
+    filterEvents,
+    firstParam,
+    getUpcomingEvents,
+    isEventMode,
+    type EventMode,
+    type EventSearch,
+} from "@/lib/event-search";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
-async function EventsList() {
-    const response = await fetch(`${BASE_URL}/api/events`);
-    const { events } = await response.json();
+// The home page shows only the next few events. The calendar lists them all.
+const NEXT_UP_LIMIT = 9;
+
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+type HomeQuery = EventSearch & { mode?: EventMode };
+
+// TEMPORARY: in development, mock-data/events.json (git-ignored, local only) replaces the
+// database so the UI can be built with sample events. Delete the file to use real data.
+async function readMockEvents(): Promise<EventFields[] | null> {
+    if (process.env.NODE_ENV !== "development") return null;
+    try {
+        return JSON.parse(await readFile(path.join(process.cwd(), "mock-data", "events.json"), "utf8"));
+    } catch {
+        return null;
+    }
+}
+
+async function NextUp({ query }: { query: Promise<HomeQuery> }) {
+    const { q, where, mode } = await query;
+    const allEvents: EventFields[] =
+        (await readMockEvents()) ?? (await (await fetch(`${BASE_URL}/api/events`)).json()).events ?? [];
+
+    const events = filterEvents(getUpcomingEvents(allEvents), { q, where })
+        .filter((event) => !mode || event.mode === mode)
+        .slice(0, NEXT_UP_LIMIT);
+
     return (
-        <section>
-            <h1 className="text-center">The Hub for Every Dev <br /> Event You Can't Miss</h1>
-            <p className="text-center mt-5">Hackathons, Meetups, and Conferences, All in One Place</p>
+        <>
+            <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+                <div>
+                    <p className="font-mono text-[13px] text-muted">upcoming</p>
+                    <h2 className="mt-1.5 text-4xl font-bold tracking-[-0.02em]">Next up</h2>
+                </div>
+                <ModeFilter q={q} where={where} mode={mode} />
+            </div>
 
-            <ExploreBtn />
-
-            <div id="events" className="mt-20 space-y-7 scroll-mt-28">
-                <h3>Featured Events</h3>
-
-                <ul className="events">
-                    {events && events.length > 0 && events.map((event: EventFields) => (
-                        <li key={event.title} className="list-none">
+            {events.length === 0 ? (
+                <p className="text-muted">
+                    No events match your search.{" "}
+                    <Link href="/#events" className="text-accent">Clear search</Link>
+                </p>
+            ) : (
+                <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(340px,100%),1fr))] gap-5">
+                    {events.map((event) => (
+                        <li key={event.slug} className="flex">
                             <EventCard {...event} />
                         </li>
                     ))}
                 </ul>
-            </div>
-        </section>
-    )
-}
-
-function EventsLoading() {
-    return <div>Loading events...</div>;
-}
-
-export default function Page() {
-    return (
-        <>            
-            <Suspense fallback={<EventsLoading />}>
-                <EventsList />
-            </Suspense>
+            )}
         </>
+    );
+}
+
+export default function Page({ searchParams }: { searchParams: SearchParams }) {
+    const query = searchParams.then((params) => {
+        const mode = firstParam(params.mode);
+        return {
+            q: firstParam(params.q),
+            where: firstParam(params.where),
+            mode: isEventMode(mode) ? mode : undefined,
+        };
+    });
+
+    return (
+        <div data-full-width>
+            <Hero search={query} />
+
+            <section id="events" className="mx-auto max-w-300 scroll-mt-28 px-6 pb-18 pt-6">
+                <Suspense fallback={<p className="text-muted">Loading events...</p>}>
+                    <NextUp query={query} />
+                </Suspense>
+
+                <div className="mt-7">
+                    <Link href="/calendar" className="inline-block py-3 font-mono text-sm text-accent">
+                        see all in calendar →
+                    </Link>
+                </div>
+            </section>
+
+            <HostBox />
+        </div>
     );
 }
