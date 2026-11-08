@@ -13,6 +13,10 @@ type SignupBody = {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// 11000 is MongoDB's duplicate key error, from the unique index on email.
+const isDuplicateKeyError = (error: unknown) =>
+    typeof error === "object" && error !== null && "code" in error && error.code === 11000;
+
 export async function POST(req: NextRequest) {
     try {
         const body = (await req.json()) as SignupBody;
@@ -93,6 +97,14 @@ export async function POST(req: NextRequest) {
             {status: 201}
         );
     } catch (error) {
+        // Two sign-ups can both pass the check above, then the unique index rejects the second.
+        if (isDuplicateKeyError(error)) {
+            return NextResponse.json(
+                { message: "Email already exists" },
+                { status: 409 }
+            );
+        }
+
         console.error("Signup failed:", error);
         return NextResponse.json(
             {message:"Signup failed. Please try again later."},
