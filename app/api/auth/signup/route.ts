@@ -17,9 +17,29 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const isDuplicateKeyError = (error: unknown) =>
     typeof error === "object" && error !== null && "code" in error && error.code === 11000;
 
+const isOptionalText = (value: unknown) => value == null || typeof value === "string";
+
+// Returns null unless the body is a JSON object whose fields are text. The SignupBody
+// type can't check this, because the request comes from outside the app.
+const readSignupBody = async (req: NextRequest): Promise<SignupBody | null> => {
+    const body: unknown = await req.json().catch(() => null);
+    if (typeof body !== "object" || body === null || Array.isArray(body)) return null;
+
+    const { name, email, password, phone } = body as Record<string, unknown>;
+    if (![name, email, password, phone].every(isOptionalText)) return null;
+
+    return body as SignupBody;
+};
+
 export async function POST(req: NextRequest) {
     try {
-        const body = (await req.json()) as SignupBody;
+        const body = await readSignupBody(req);
+        if (!body) {
+            return NextResponse.json(
+                { message: "Invalid request body." },
+                { status: 400 }
+            );
+        }
 
         const name = body.name?.trim() ?? "";
         const email = body.email?.trim().toLowerCase() ?? "";
