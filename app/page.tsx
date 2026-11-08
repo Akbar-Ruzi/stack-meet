@@ -1,86 +1,12 @@
 import Link from "next/link";
-import Hero from "@/components/home/Hero";
-import ModeFilter from "@/components/home/ModeFilter";
-import HostBox from "@/components/home/HostBox";
-import EventCard from "@/components/events/EventCard";
-import { EventFields } from "@/database";
 import { Suspense } from "react";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-import {
-    filterEvents,
-    firstParam,
-    getUpcomingEvents,
-    isEventMode,
-    type EventMode,
-    type EventSearch,
-} from "@/lib/event-search";
+import Hero from "@/components/home/Hero";
+import HostBox from "@/components/home/HostBox";
+import NextUp from "@/components/home/NextUp";
+import { parseHomeQuery, type HomeSearchParams } from "@/lib/home-query";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-
-// The home page shows only the next few events. The calendar lists them all.
-const NEXT_UP_LIMIT = 9;
-
-type SearchParams = Promise<Record<string, string | string[] | undefined>>;
-type HomeQuery = EventSearch & { mode?: EventMode };
-
-// TEMPORARY: in development, mock-data/events.json (git-ignored, local only) replaces the
-// database so the UI can be built with sample events. Delete the file to use real data.
-async function readMockEvents(): Promise<EventFields[] | null> {
-    if (process.env.NODE_ENV !== "development") return null;
-    try {
-        return JSON.parse(await readFile(path.join(process.cwd(), "mock-data", "events.json"), "utf8"));
-    } catch {
-        return null;
-    }
-}
-
-async function NextUp({ query }: { query: Promise<HomeQuery> }) {
-    const { q, where, mode } = await query;
-    const allEvents: EventFields[] =
-        (await readMockEvents()) ?? (await (await fetch(`${BASE_URL}/api/events`)).json()).events ?? [];
-
-    const events = filterEvents(getUpcomingEvents(allEvents), { q, where })
-        .filter((event) => !mode || event.mode === mode)
-        .slice(0, NEXT_UP_LIMIT);
-
-    return (
-        <>
-            <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-                <div>
-                    <p className="font-mono text-[13px] text-muted">upcoming</p>
-                    <h2 className="mt-1.5 text-4xl font-bold tracking-[-0.02em]">Next up</h2>
-                </div>
-                <ModeFilter q={q} where={where} mode={mode} />
-            </div>
-
-            {events.length === 0 ? (
-                <p className="text-muted">
-                    No events match your search.{" "}
-                    <Link href="/#events" className="text-accent">Clear search</Link>
-                </p>
-            ) : (
-                <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(340px,100%),1fr))] gap-5">
-                    {events.map((event) => (
-                        <li key={event.slug} className="flex">
-                            <EventCard {...event} />
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </>
-    );
-}
-
-export default function Page({ searchParams }: { searchParams: SearchParams }) {
-    const query = searchParams.then((params) => {
-        const mode = firstParam(params.mode);
-        return {
-            q: firstParam(params.q),
-            where: firstParam(params.where),
-            mode: isEventMode(mode) ? mode : undefined,
-        };
-    });
+export default function Page({ searchParams }: { searchParams: Promise<HomeSearchParams> }) {
+    const query = searchParams.then(parseHomeQuery);
 
     return (
         <div data-full-width>
