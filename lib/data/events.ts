@@ -1,13 +1,11 @@
 import "server-only";
 
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import type { FilterQuery } from "mongoose";
 
 import connectDB from "@/lib/mongodb";
 import { Event } from "@/database";
 import type { EventFields } from "@/types/event.types";
-import { filterEvents, getUpcomingEvents as sortUpcoming, type EventMode, type EventSearch } from "@/lib/event-search";
+import type { EventMode, EventSearch } from "@/lib/event-search";
 
 // An event as pages receive it: plain data with string ids, safe to pass to client components.
 export type EventRecord = EventFields & { _id: string; createdBy: string };
@@ -52,26 +50,9 @@ function buildUpcomingFilter({ q, where, mode }: UpcomingEventsOptions): FilterQ
     return { $and: conditions };
 }
 
-// TEMPORARY: in development, mock-data/events.json (git-ignored, local only) replaces the
-// database so the UI can be built with sample events. Delete the file to use real data.
-async function readMockEvents(): Promise<EventRecord[] | null> {
-    if (process.env.NODE_ENV !== "development") return null;
-    try {
-        return JSON.parse(await readFile(path.join(process.cwd(), "mock-data", "events.json"), "utf8"));
-    } catch {
-        return null;
-    }
-}
-
 // Events from today on, soonest first, matching the search and mode.
 export async function getUpcomingEvents(options: UpcomingEventsOptions = {}): Promise<EventRecord[]> {
-    const { limit, mode } = options;
-
-    const mockEvents = await readMockEvents();
-    if (mockEvents) {
-        const matches = filterEvents(sortUpcoming(mockEvents), options).filter((event) => !mode || event.mode === mode);
-        return limit ? matches.slice(0, limit) : matches;
-    }
+    const { limit } = options;
 
     await connectDB();
     const query = Event.find(buildUpcomingFilter(options)).select(PUBLIC_FIELDS).sort({ date: 1, time: 1 });
