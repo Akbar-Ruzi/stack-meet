@@ -171,7 +171,6 @@ The app uses API routes and Server Actions, which both reach MongoDB through Mon
 | API routes | `app/api/auth/` | Sign up, sign in and sign out |
 | API routes | `app/api/events/` | Create, list, read, edit and delete events |
 | Server Actions | `lib/actions/booking.action.ts` | Create a booking, count bookings |
-| Server Actions | `lib/actions/event.actions.ts` | Find similar events |
 
 ## Data models
 

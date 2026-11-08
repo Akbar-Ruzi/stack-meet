@@ -3,9 +3,7 @@ import { notFound } from "next/navigation";
 
 import EventContent from "@/components/events/EventContent";
 import BookForm from "@/components/events/BookForm";
-import { EventFields } from "@/database";
-import { getSimilarEventsBySlug } from '@/lib/actions/event.actions';
-import { getEventBySlug } from "@/lib/data/events";
+import { getEventBySlug, getSimilarEvents, type EventRecord } from "@/lib/data/events";
 import EventCard from "@/components/events/EventCard";
 import {BookingProvider} from "@/lib/context/booking-context";
 
@@ -26,7 +24,10 @@ const EventDetailsContent = async ({ params }: EventPageProps) => {
    const eventId = event._id;
     if (!eventId) return notFound();
 
-    const similarEvents: EventFields[] = await getSimilarEventsBySlug({ slug });
+    const similarEvents = await getSimilarEvents(slug).catch((error): EventRecord[] => {
+        console.error("Loading similar events failed:", error);
+        return [];
+    });
     return (
         <section id="event">
             {/* Event Header */}
@@ -47,7 +48,7 @@ const EventDetailsContent = async ({ params }: EventPageProps) => {
             <div className="flex w-full flex-col gap-4 pt-20">
                 <h2>Similar Events</h2>
                 <div className="events">
-                    {similarEvents.length > 0 && similarEvents.map((similarEvents: EventFields) => (
+                    {similarEvents.length > 0 && similarEvents.map((similarEvents) => (
                         <EventCard key={similarEvents.title} {...similarEvents} />
                     ))}
                 </div>
