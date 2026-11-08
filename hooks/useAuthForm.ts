@@ -9,9 +9,9 @@ const readField = (form: HTMLFormElement, name: string) =>
     (form.elements.namedItem(name) as HTMLInputElement).value;
 
 // Holds the selected tab and submits the form for that tab.
-export function useAuthForm() {
+export function useAuthForm(initialMode: AuthMode = "sign-in") {
     const router = useRouter();
-    const [mode, setMode] = useState<AuthMode>("sign-in");
+    const [mode, setMode] = useState<AuthMode>(initialMode);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const submitSignIn = async (form: HTMLFormElement) => {

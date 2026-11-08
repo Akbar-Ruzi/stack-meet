@@ -28,8 +28,8 @@ const TABS: { mode: AuthMode; label: string }[] = [
     { mode: "sign-up", label: "Create account" },
 ];
 
-const AuthPanel = () => {
-    const { mode, setMode, isSubmitting, handleSubmit } = useAuthForm();
+const AuthPanel = ({ initialMode }: { initialMode: AuthMode }) => {
+    const { mode, setMode, isSubmitting, handleSubmit } = useAuthForm(initialMode);
     const isSignUp = mode === "sign-up";
     const copy = COPY[mode];
 

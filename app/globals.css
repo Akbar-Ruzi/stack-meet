@@ -180,10 +180,6 @@
         @apply bg-dark-100 border-dark-200 card-shadow mx-auto w-full max-w-4xl rounded-[10px] border px-5 py-6 sm:px-8;
     }
 
-    .auth-page {
-        @apply mx-auto flex w-full max-w-4xl justify-center pt-2 sm:pt-4;
-    }
-
     .events {
         @apply grid md:grid-cols-3 gap-x-10 gap-y-14 sm:grid-cols-2 grid-cols-1;
     }
