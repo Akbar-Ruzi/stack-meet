@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 
 import connectDB from "@/lib/mongodb";
 import Event from '@/database/event.model';
+import { getUpcomingEvents } from "@/lib/data/events";
 
 type CloudinaryUploadResult = {
 	secure_url: string;
@@ -105,8 +106,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
 	try {
-		await connectDB();
-		const events = await Event.find().sort({ createdAt: -1 });
+		const events = await getUpcomingEvents();
 		return NextResponse.json({ message: 'Events fetched successfully', events }, { status: 200 });
 	} catch (e) {
 		console.error('Event fetching failed:', e);
