@@ -1,4 +1,4 @@
-import type { EventFields } from "@/database";
+import type { EventFields } from "@/types/event.types";
 
 export type EventFormValues = Omit<
     EventFields,

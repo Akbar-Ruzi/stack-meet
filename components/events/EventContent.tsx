@@ -2,7 +2,7 @@ import Image from "next/image";
 import EventDetailsItem from "@/components/events/EventDetailsItem";
 import EventAgenda from "@/components/events/EventAgenda";
 import EventTags from "@/components/events/EventTags";
-import { EventFields } from "@/database";
+import type { EventFields } from "@/types/event.types";
 
 type Props = {
     event:EventFields;

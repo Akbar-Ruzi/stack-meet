@@ -1,4 +1,4 @@
-import type { EventFields } from "@/database";
+import type { EventFields } from "@/types/event.types";
 import { FORMAT_LABELS } from "@/lib/event-display";
 
 const FORMAT_COLORS: Record<EventFields["mode"], string> = {

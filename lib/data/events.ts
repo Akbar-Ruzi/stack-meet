@@ -5,7 +5,8 @@ import path from "node:path";
 import type { FilterQuery } from "mongoose";
 
 import connectDB from "@/lib/mongodb";
-import { Event, type EventFields } from "@/database";
+import { Event } from "@/database";
+import type { EventFields } from "@/types/event.types";
 import { filterEvents, getUpcomingEvents as sortUpcoming, type EventMode, type EventSearch } from "@/lib/event-search";
 
 // An event as pages receive it: plain data with string ids, safe to pass to client components.

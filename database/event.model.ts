@@ -1,27 +1,9 @@
 import { Schema, model, models, Document, Types } from 'mongoose';
+import type { EventFields } from "@/types/event.types";
 
 export interface AgendaItem {
   time: string;
   item: string;
-}
-
-// Base event data type without MongoDB document properties and it is is the blueprint of the event data
-export interface EventFields {
-  title: string;
-  slug: string;
-  description: string;
-  overview: string;
-  image: string;
-  venue?: string; // Required for in-person and hybrid events.
-  location?: string; // Required for in-person and hybrid events.
-  onlineUrl?: string; // For online and hybrid events. Hidden from queries by default.
-  date: string;
-  time: string;
-  mode: 'online' | 'in-person' | 'hybrid';
-  audience: string;
-  agenda?: AgendaItem[];
-  organizer: string;
-  tags?: string[];
 }
 
 // IEvent full Mongoose event document type and it is the real database document object created from that blueprint(EventFields)

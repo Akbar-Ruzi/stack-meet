@@ -1,4 +1,4 @@
-import type { EventFields } from "@/database";
+import type { EventFields } from "@/types/event.types";
 
 export const FORMAT_LABELS: Record<EventFields["mode"], string> = {
     online: "Online",

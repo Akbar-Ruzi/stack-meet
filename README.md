@@ -80,7 +80,7 @@ stack-meet/
 │   ├── mongodb.ts              # Cached database connection
 │   └── utils.ts                # Shared helpers
 ├── public/                     # Icons and images
-├── types/                      # TypeScript type extensions
+├── types/                      # Shared TypeScript types and type extensions
 ├── auth.ts                     # Auth.js configuration
 ├── instrumentation-client.ts   # PostHog setup
 └── next.config.ts              # Next.js configuration
