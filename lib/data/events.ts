@@ -13,7 +13,8 @@ export type EventRecord = EventFields & { _id: string; createdBy: string };
 
 export type UpcomingEventsOptions = EventSearch & { mode?: EventMode; limit?: number };
 
-type EventDoc = EventFields & { _id: { toString(): string }; createdBy: { toString(): string } };
+// Older events can be missing createdBy.
+type EventDoc = EventFields & { _id: { toString(): string }; createdBy?: { toString(): string } };
 
 // Leaves out the timestamps and version key, which pages don't use and which can't be passed to client components.
 const PUBLIC_FIELDS = "-createdAt -updatedAt -__v";
@@ -21,7 +22,7 @@ const PUBLIC_FIELDS = "-createdAt -updatedAt -__v";
 const toRecord = (doc: EventDoc): EventRecord => ({
     ...doc,
     _id: doc._id.toString(),
-    createdBy: doc.createdBy.toString(),
+    createdBy: doc.createdBy?.toString() ?? "",
 });
 
 const today = () => new Date().toISOString().slice(0, 10);

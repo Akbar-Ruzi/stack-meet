@@ -5,13 +5,9 @@ import EventContent from "@/components/events/EventContent";
 import BookForm from "@/components/events/BookForm";
 import { EventFields } from "@/database";
 import { getSimilarEventsBySlug } from '@/lib/actions/event.actions';
+import { getEventBySlug } from "@/lib/data/events";
 import EventCard from "@/components/events/EventCard";
 import {BookingProvider} from "@/lib/context/booking-context";
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-type EventDetails = EventFields & {
-  _id: string;
-};
 
 type EventPageProps = {
     params: Promise<{ slug: string }>;
@@ -19,15 +15,11 @@ type EventPageProps = {
 
 const EventDetailsContent = async ({ params }: EventPageProps) => {
     const { slug } = await params;// unwrap the Promise
-    if (!BASE_URL) {
-        throw new Error("NEXT_PUBLIC_BASE_URL environment variable is not set");
-    }
 
-    const res = await fetch(`${BASE_URL}/api/events/${slug}`);
-    if (!res.ok) {
-        return notFound();
-    }
-    const { event } = (await res.json()) as { event: EventDetails };
+    const event = await getEventBySlug(slug).catch((error) => {
+        console.error("Loading the event failed:", error);
+        return null;
+    });
 
     if (!event || !event.description || !event.image) return notFound();
 
