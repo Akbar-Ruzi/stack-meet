@@ -1,5 +1,6 @@
 "use client";
 import AuthField from "@/components/auth/AuthField";
+import AuthNotice from "@/components/auth/AuthNotice";
 import { useAuthForm, type AuthMode } from "@/hooks/useAuthForm";
 
 const COPY = {
@@ -28,13 +29,19 @@ const TABS: { mode: AuthMode; label: string }[] = [
     { mode: "sign-up", label: "Create account" },
 ];
 
-const AuthPanel = ({ initialMode }: { initialMode: AuthMode }) => {
+type AuthPanelProps = {
+    initialMode: AuthMode;
+    fromCreateEvent: boolean;
+};
+
+const AuthPanel = ({ initialMode, fromCreateEvent }: AuthPanelProps) => {
     const { mode, setMode, isSubmitting, handleSubmit } = useAuthForm(initialMode);
     const isSignUp = mode === "sign-up";
     const copy = COPY[mode];
 
     return (
         <div className="w-full max-w-110">
+            {fromCreateEvent && <AuthNotice />}
             <p className="font-mono text-[14px] text-accent">{copy.prompt}</p>
             <h1 className="mt-3 bg-none text-[44px] font-bold leading-[1.05] tracking-[-0.03em] text-text">{copy.heading}</h1>
             <p className="mt-3 text-[17px] leading-normal text-muted">{copy.sub}</p>

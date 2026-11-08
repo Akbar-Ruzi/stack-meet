@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import AuthPanel from "@/components/auth/AuthPanel";
-import { parseAuthMode, type AuthSearchParams } from "@/lib/auth-query";
+import { isFromCreateEvent, parseAuthMode, type AuthSearchParams } from "@/lib/auth-query";
 
 type SignInPageProps = {
     searchParams: Promise<AuthSearchParams>;
@@ -16,10 +16,11 @@ async function SignInContent({ searchParams }: SignInPageProps) {
         redirect("/");
     }
 
-    const initialMode = parseAuthMode(await searchParams);
+    const params = await searchParams;
+    const initialMode = parseAuthMode(params);
 
     // The key resets the selected tab when the URL asks for a different one.
-    return <AuthPanel key={initialMode} initialMode={initialMode} />;
+    return <AuthPanel key={initialMode} initialMode={initialMode} fromCreateEvent={isFromCreateEvent(params)} />;
 }
 
 export default function SignInPage({ searchParams }: SignInPageProps) {
