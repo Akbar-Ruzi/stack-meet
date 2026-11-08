@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
 import { signOut } from "next-auth/react";
+import { useDropdownMenu } from "@/hooks/useDropdownMenu";
 
 export type AccountUser = {
     name: string | null;
@@ -17,44 +17,7 @@ const getInitials = ({ name, email }: AccountUser) => {
 const ITEM_CLASSES = "flex min-h-11 w-full cursor-pointer items-center rounded-md px-3 text-left text-[15px]";
 
 const AccountMenu = ({ user }: { user: AccountUser }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const containerRef = useRef<HTMLSpanElement>(null);
-    const buttonRef = useRef<HTMLButtonElement>(null);
-    const menuRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        if (!isOpen) return;
-
-        const items = () => [...(menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [])];
-        items()[0]?.focus();
-
-        const handlePointerDown = (e: PointerEvent) => {
-            if (!containerRef.current?.contains(e.target as Node)) setIsOpen(false);
-        };
-
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape") {
-                setIsOpen(false);
-                buttonRef.current?.focus();
-            }
-            if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-                e.preventDefault();
-                const all = items();
-                const step = e.key === "ArrowDown" ? 1 : -1;
-                const current = all.indexOf(document.activeElement as HTMLElement);
-                all[(current + step + all.length) % all.length]?.focus();
-            }
-        };
-
-        document.addEventListener("pointerdown", handlePointerDown);
-        document.addEventListener("keydown", handleKeyDown);
-        return () => {
-            document.removeEventListener("pointerdown", handlePointerDown);
-            document.removeEventListener("keydown", handleKeyDown);
-        };
-    }, [isOpen]);
-
-    const close = () => setIsOpen(false);
+    const { isOpen, toggle, close, containerRef, buttonRef, menuRef } = useDropdownMenu();
 
     return (
         <span ref={containerRef} className="relative ml-2">
@@ -64,7 +27,7 @@ const AccountMenu = ({ user }: { user: AccountUser }) => {
                 aria-expanded={isOpen}
                 aria-haspopup="menu"
                 aria-label="Account menu"
-                onClick={() => setIsOpen((open) => !open)}
+                onClick={toggle}
                 className="size-11 cursor-pointer rounded-full border border-border bg-[#1C211E] font-mono text-[14px] font-medium text-accent"
             >
                 {getInitials(user)}
