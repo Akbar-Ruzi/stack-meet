@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Event from '@/database/event.model';
+import { getEventBySlug } from "@/lib/data/events";
 import { auth } from "@/auth";
 
 // Define route params type for type safety
@@ -26,9 +27,6 @@ export async function GET(
   { params }: RouteParams
 ): Promise<NextResponse> {
   try {
-    // Connect to database
-    await connectDB();
-
     //Await the slug from params
     const { slug } = await params;
 
@@ -53,7 +51,7 @@ export async function GET(
 
 
     // Query for event by slug
-    const event = await Event.findOne({ slug: sanitizedSlug }).lean();
+    const event = await getEventBySlug(sanitizedSlug);
 
     // Check if event exists
     if (!event) {
