@@ -31,11 +31,12 @@ const TABS: { mode: AuthMode; label: string }[] = [
 
 type AuthPanelProps = {
     initialMode: AuthMode;
+    nextPath: string;
     fromCreateEvent: boolean;
 };
 
-const AuthPanel = ({ initialMode, fromCreateEvent }: AuthPanelProps) => {
-    const { mode, setMode, isSubmitting, handleSubmit } = useAuthForm(initialMode);
+const AuthPanel = ({ initialMode, nextPath, fromCreateEvent }: AuthPanelProps) => {
+    const { mode, setMode, isSubmitting, handleSubmit } = useAuthForm(initialMode, nextPath);
     const isSignUp = mode === "sign-up";
     const copy = COPY[mode];
 

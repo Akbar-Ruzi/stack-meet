@@ -11,7 +11,7 @@ const readField = (form: HTMLFormElement, name: string) =>
     (form.elements.namedItem(name) as HTMLInputElement).value;
 
 // Holds the selected tab and submits the form for that tab.
-export function useAuthForm(initialMode: AuthMode = "sign-in") {
+export function useAuthForm(initialMode: AuthMode = "sign-in", nextPath = "/") {
     const router = useRouter();
     const [mode, setMode] = useState<AuthMode>(initialMode);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,7 +36,7 @@ export function useAuthForm(initialMode: AuthMode = "sign-in") {
             }
 
             toast.success("Welcome back!", { id: toastId });
-            router.push("/");
+            router.push(nextPath);
             router.refresh();
         } catch (error) {
             console.error("Sign in failed:", error);
