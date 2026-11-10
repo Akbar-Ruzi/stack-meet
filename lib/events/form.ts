@@ -17,7 +17,13 @@ export const EVENT_FORM_DEFAULTS: EventFormValues = {
     agenda: [{ time: "", item: "" }],
 };
 
-export const TOTAL_STEPS = 3;
+export const FORM_STEPS = [
+    { title: "Basics", description: "What your event is and how it looks." },
+    { title: "When & where", description: "Date, time and how people attend." },
+    { title: "Audience & agenda", description: "Who it's for and what happens when." },
+];
+
+export const TOTAL_STEPS = FORM_STEPS.length;
 
 // Builds the body POST /api/events expects.
 export function toEventFormData(values: EventFormValues): FormData {

@@ -2,7 +2,7 @@ import CreateEventForm from "@/components/createEvent/CreateEventForm";
 
 const CreateEventPage = () => (
     <div data-full-width>
-        <section className="mx-auto max-w-312 px-6 pb-8 pt-14">
+        <section className="mx-auto max-w-312 px-6 pt-14">
             <p className="font-mono text-[14px] text-accent">$ stackmeet create</p>
             <h1 className="mt-3.5 bg-none text-[clamp(40px,5.5vw,64px)] font-bold leading-[1.02] tracking-[-0.03em] text-text">
                 Create an event
@@ -12,9 +12,7 @@ const CreateEventPage = () => (
             </p>
         </section>
 
-        <section className="mx-auto flex max-w-312 flex-wrap items-start gap-10 px-6 pb-24">
-            <CreateEventForm />
-        </section>
+        <CreateEventForm />
     </div>
 );
 

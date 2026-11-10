@@ -9,7 +9,7 @@ const AudienceStep = ({ form, active }: { form: UseFormReturn<EventFormValues>; 
     const { errors } = form.formState;
 
     return (
-        <StepFields active={active}>
+        <StepFields active={active} step={3}>
             <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
                 <Input id="event-organizer" label="Organizer" required placeholder="Your name or group" error={errors.organizer?.message} {...form.register("organizer")} />
                 <Input id="event-audience" label="Audience" required placeholder="e.g. Beginner to intermediate devs" error={errors.audience?.message} {...form.register("audience")} />

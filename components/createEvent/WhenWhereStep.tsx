@@ -11,7 +11,7 @@ const WhenWhereStep = ({ form, active }: { form: UseFormReturn<EventFormValues>;
     const mode = useWatch({ control: form.control, name: "mode" });
 
     return (
-        <StepFields active={active}>
+        <StepFields active={active} step={2}>
             <div className={ROW_CLASSES}>
                 <Input id="event-date" label="Date" type="date" required error={errors.date?.message} {...form.register("date")} />
                 <Input id="event-time" label="Start time" type="time" required error={errors.time?.message} {...form.register("time")} />

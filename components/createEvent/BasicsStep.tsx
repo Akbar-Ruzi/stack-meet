@@ -8,7 +8,7 @@ const BasicsStep = ({ form, active }: { form: UseFormReturn<EventFormValues>; ac
     const { errors } = form.formState;
 
     return (
-        <StepFields active={active}>
+        <StepFields active={active} step={1}>
             <Input id="event-title" label="Title" required error={errors.title?.message} {...form.register("title")} />
             <Input
                 id="event-description"

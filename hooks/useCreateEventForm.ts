@@ -34,10 +34,14 @@ export function useCreateEventForm() {
         setStep((current) => current + 1);
     };
 
-    const goBack = () => {
+    // Only finished steps can be reopened, so Continue's check can't be skipped.
+    const goToStep = (target: number) => {
+        if (target >= step || isSubmitting) return;
         form.clearErrors();
-        setStep((current) => current - 1);
+        setStep(target);
     };
+
+    const goBack = () => goToStep(step - 1);
 
     const publish = async () => {
         setIsSubmitting(true);
@@ -91,5 +95,5 @@ export function useCreateEventForm() {
         if (name) form.clearErrors(name);
     };
 
-    return { form, step, isSubmitting, goBack, handleSubmit, handleChange, handleKeyDown };
+    return { form, step, isSubmitting, goBack, goToStep, handleSubmit, handleChange, handleKeyDown };
 }
