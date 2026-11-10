@@ -53,7 +53,7 @@ const EventPagePreview = ({ titleId, values, coverUrl }: EventPagePreviewProps) 
                         {event.agenda.map(({ start, title }, index) => (
                             <li key={`${start}-${title}-${index}`} className="flex items-center gap-5">
                                 <time className="w-16 flex-none text-right text-[22px] font-bold leading-[1.1]">{start}</time>
-                                <span aria-hidden="true" className={`h-9 w-1 flex-none rounded-[4px] ${AGENDA_BAR_COLORS[index % AGENDA_BAR_COLORS.length]}`} />
+                                <span aria-hidden="true" className={`h-9 w-1 flex-none rounded-lg ${AGENDA_BAR_COLORS[index % AGENDA_BAR_COLORS.length]}`} />
                                 <div className="min-w-0 text-lg font-medium leading-[1.3]">{title}</div>
                             </li>
                         ))}
