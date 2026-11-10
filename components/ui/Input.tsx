@@ -13,6 +13,16 @@ const borderClass = (error?: string) => (error ? "border-danger-border" : "borde
 const describedBy = ({ id, hint, error }: FieldProps) =>
     [hint && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(" ") || undefined;
 
+export const FieldError = ({ id, message }: { id?: string; message: string }) => (
+    <span id={id} className="flex items-center gap-1.5 text-[13px] text-danger">
+        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 8v5M12 16v.01" />
+        </svg>
+        {message}
+    </span>
+);
+
 const Field = ({ id, label, hint, error, required, children }: FieldProps & { required?: boolean; children: ReactNode }) => (
     <div className="flex flex-col gap-2">
         <label htmlFor={id} className="text-[15px] font-medium">
@@ -20,15 +30,7 @@ const Field = ({ id, label, hint, error, required, children }: FieldProps & { re
         </label>
         {children}
         {hint && <span id={`${id}-hint`} className="text-[13px] text-muted">{hint}</span>}
-        {error && (
-            <span id={`${id}-error`} className="flex items-center gap-1.5 text-[13px] text-danger-text">
-                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <circle cx="12" cy="12" r="9" />
-                    <path d="M12 8v5M12 16v.01" />
-                </svg>
-                {error}
-            </span>
-        )}
+        {error && <FieldError id={`${id}-error`} message={error} />}
     </div>
 );
 

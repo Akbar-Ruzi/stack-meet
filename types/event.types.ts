@@ -18,3 +18,23 @@ export interface EventFields {
   organizer: string;
   tags?: string[];
 }
+
+export type AgendaRow = { time: string; item: string };
+
+// The values the create event form holds while it's being filled in
+export type EventFormValues = {
+  title: string;
+  description: string;
+  overview: string;
+  image: FileList | null;
+  date: string;
+  time: string;
+  mode: EventFields["mode"];
+  venue: string;
+  location: string;
+  onlineUrl: string;
+  organizer: string;
+  audience: string;
+  tags: string[];
+  agenda: AgendaRow[];
+};

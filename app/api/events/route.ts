@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from 'cloudinary';
+import mongoose from "mongoose";
 import { auth } from "@/auth";
 
 import connectDB from "@/lib/mongodb";
@@ -84,6 +85,10 @@ export async function POST(req: NextRequest) {
 			{ status: 201 });
 	} catch (e) {
 		console.error('Event creation failed:', e);
+		if (e instanceof mongoose.Error.ValidationError) {
+			const [firstError] = Object.values(e.errors);
+			return NextResponse.json({ message: firstError.message }, { status: 400 });
+		}
 		const errors = e as {
 			code?: number; keyPattern?: Record<string, unknown>;
 		};
