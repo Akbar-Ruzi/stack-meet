@@ -36,6 +36,12 @@ export function formatDayAndDate(date: string) {
     }).format(parsed);
 }
 
+// "Sat, Nov 14 2026", or an empty string when the date isn't set.
+export function formatFullDate(date: string) {
+    const dayAndDate = formatDayAndDate(date);
+    return dayAndDate ? `${dayAndDate} ${date.slice(0, 4)}` : "";
+}
+
 export function getEventPlace({ mode, location }: Pick<EventFields, "mode" | "location">) {
     return mode === "online" ? "Online" : location ?? "";
 }

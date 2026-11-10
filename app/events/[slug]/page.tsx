@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
+import EventHeader from "@/components/events/EventHeader";
 import EventContent from "@/components/events/EventContent";
 import BookForm from "@/components/events/BookForm";
 import { getEventBySlug, getSimilarEvents, type EventRecord } from "@/lib/data/events";
@@ -29,32 +30,30 @@ const EventDetailsContent = async ({ params }: EventPageProps) => {
         return [];
     });
     return (
-        <section id="event">
-            {/* Event Header */}
-            <div className="header">
-                <h1>Event Description</h1>
-                <p>{event.description}</p>
-            </div>
-            {/* Event Details & Booking Form */}
-            <div className="details">
-                {/* left side - Event Content */}
-                <EventContent event={event} />
-                {/* Right-side --Booking Form */}
-                <BookingProvider value={{eventId, slug: event.slug}}>
-                    <BookForm />
-                </BookingProvider>
-            </div>
-            {/* Similar Events */}
-            {similarEvents.length > 0 && (
-                <div className="flex w-full flex-col gap-4 pt-20">
-                    <h2>Similar Events</h2>
-                    <div className="events">
-                        {similarEvents.map((similarEvents) => (
-                            <EventCard key={similarEvents.title} {...similarEvents} />
-                        ))}
-                    </div>
+        <section id="event" data-full-width>
+            <EventHeader {...event} />
+            <div className="mx-auto max-w-300 px-6 pb-10">
+                {/* Event Details & Booking Form */}
+                <div className="details">
+                    {/* left side - Event Content */}
+                    <EventContent event={event} />
+                    {/* Right-side --Booking Form */}
+                    <BookingProvider value={{eventId, slug: event.slug}}>
+                        <BookForm />
+                    </BookingProvider>
                 </div>
-            )}
+                {/* Similar Events */}
+                {similarEvents.length > 0 && (
+                    <div className="flex w-full flex-col gap-4 pt-20">
+                        <h2>Similar Events</h2>
+                        <div className="events">
+                            {similarEvents.map((similarEvents) => (
+                                <EventCard key={similarEvents.title} {...similarEvents} />
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
         </section>
     )
 }

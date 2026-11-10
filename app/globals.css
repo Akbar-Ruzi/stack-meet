@@ -190,12 +190,6 @@
     }
 
     #event {
-        @apply pt-16;
-
-        .header {
-            @apply flex w-2/3 flex-col items-start gap-4 max-lg:w-full mb-10;
-        }
-
         .details {
             @apply flex w-full flex-col lg:flex-row gap-12 items-start mt-12 max-lg:items-center;
 
