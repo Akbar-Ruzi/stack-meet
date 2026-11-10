@@ -192,14 +192,6 @@
     #event {
         .details {
             @apply flex flex-wrap items-start gap-10;
-
-            .booking {
-                @apply max-w-100 flex-[1_1_320px];
-
-                .signup-card {
-                    @apply bg-dark-100 border-dark-200 card-shadow flex w-full flex-col gap-6 rounded-[10px] border px-5 py-6;
-                }
-            }
         }
 
         h2 {
@@ -293,25 +285,5 @@
 
     .pill {
         @apply bg-dark-100 text-light-100 text-xs rounded-[6px] px-5 py-2;
-    }
-
-    #book-event {
-        @apply flex flex-col gap-6;
-
-        form {
-            @apply flex flex-col gap-6;
-
-            div {
-                @apply flex flex-col gap-2;
-
-                input {
-                    @apply bg-dark-200 rounded-[6px] px-5 py-2.5;
-                }
-            }
-
-            button {
-                @apply bg-primary hover:bg-primary/90 w-full cursor-pointer items-center justify-center rounded-[6px] px-4 py-2.5 text-lg font-semibold text-black;
-            }
-        }
     }
 }

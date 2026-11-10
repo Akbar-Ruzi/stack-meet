@@ -1,85 +1,52 @@
-'use client';
-import { createBooking } from "@/lib/actions/booking.action";
-import { useState } from "react";
-import { useBookingContext } from "@/context/booking-context";
-import posthog from "posthog-js";
+"use client";
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import Button from "@/components/ui/Button";
+import BookingField from "@/components/events/BookingField";
+import { useBookingForm } from "@/hooks/useBookingForm";
 
 const BookEvent = () => {
-    const {eventId, slug} = useBookingContext();
-    const [email, setEmail] = useState('');
-    const [submitted, setSubmitted] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
-    const hasError = !!errorMessage;
+    const { values, errors, isSubmitting, submitted, setValue, handleSubmit } = useBookingForm();
 
-    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (hasError) {
-            setErrorMessage('');
-        }
+    if (submitted) return <p className="mt-6 text-[15px] text-text">Thank you for signing up!</p>;
 
-        setEmail(e.target.value);
-    };
-
-    const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setErrorMessage('');
-
-        const normalizedEmail = email.trim();
-        if (!normalizedEmail) {
-            setErrorMessage('Email is required.');
-            return;
-        }
-
-        if (!EMAIL_REGEX.test(normalizedEmail)) {
-            setErrorMessage('Please enter a valid email address.');
-            return;
-        }
-
-        const result = await createBooking({eventId, slug, email: normalizedEmail});
-        const {success} = result;
-        if(success) {
-            setSubmitted(true);
-            posthog.capture('event_booked', {eventId, slug, email});
-        } else {
-            const responseMessage = result.message;
-            setErrorMessage(responseMessage ?? 'Booking creation failed. Please try again.');
-            console.error('Booking creation failed:', responseMessage);
-            posthog.captureException('Booking creation failed');
-        }       
-    }
     return (
-        <div id="book-event">
-            {submitted ? (
-                <p className="text-sm">Thank you for signing up!</p>
-            ) : (
-                <form onSubmit={handleSubmit}>
-                    <div>
-                        <label htmlFor="email">Email Address</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={handleEmailChange}
-                            id="email"
-                            placeholder="Enter your email address"                           
-                            aria-invalid={hasError}
-                            className={hasError ? 'border border-red-500 ring-2 ring-red-500/40 focus:ring-red-500/60' : ''}
-                        />
-                    </div>
+        <form onSubmit={handleSubmit} noValidate className="mt-6 flex flex-col gap-2.5">
+            <BookingField
+                id="booking-name"
+                label="name"
+                type="text"
+                autoComplete="name"
+                placeholder="Your name"
+                value={values.name}
+                onChange={(e) => setValue("name", e.target.value)}
+                error={errors.name}
+            />
+            <BookingField
+                id="booking-email"
+                label="email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                value={values.email}
+                onChange={(e) => setValue("email", e.target.value)}
+                error={errors.email}
+            />
+            <BookingField
+                id="booking-phone"
+                label="phone"
+                optional
+                type="tel"
+                autoComplete="tel"
+                inputMode="tel"
+                placeholder="(555) 123-4567"
+                hint="Only used for last-minute event updates."
+                value={values.phone}
+                onChange={(e) => setValue("phone", e.target.value)}
+                error={errors.phone}
+            />
+            <Button type="submit" className="w-full" disabled={isSubmitting}>Reserve my spot</Button>
+        </form>
+    );
+};
 
-                    <button
-                        type="submit"
-                        className="button-submit disabled:cursor-not-allowed disabled:opacity-60"
-                        disabled={hasError}
-                        aria-disabled={hasError}
-                    >
-                        Submit
-                    </button>
-                    {hasError && <p className="text-sm mt-2 text-red-400 font-medium">{errorMessage}</p>}
-                </form>
-            )}
-        </div>
-    )
-}
-
-export default BookEvent
+export default BookEvent;

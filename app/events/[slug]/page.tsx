@@ -5,6 +5,7 @@ import EventHeader from "@/components/events/EventHeader";
 import EventContent from "@/components/events/EventContent";
 import BookForm from "@/components/events/BookForm";
 import { getEventBySlug, getSimilarEvents, type EventRecord } from "@/lib/data/events";
+import { getBookingCount } from "@/lib/data/bookings";
 import EventCard from "@/components/events/EventCard";
 import {BookingProvider} from "@/context/booking-context";
 
@@ -25,10 +26,16 @@ const EventDetailsContent = async ({ params }: EventPageProps) => {
    const eventId = event._id;
     if (!eventId) return notFound();
 
-    const similarEvents = await getSimilarEvents(slug).catch((error): EventRecord[] => {
-        console.error("Loading similar events failed:", error);
-        return [];
-    });
+    const [similarEvents, bookingCount] = await Promise.all([
+        getSimilarEvents(slug).catch((error): EventRecord[] => {
+            console.error("Loading similar events failed:", error);
+            return [];
+        }),
+        getBookingCount(eventId).catch((error) => {
+            console.error("Loading the booking count failed:", error);
+            return 0;
+        }),
+    ]);
     return (
         <section id="event" data-full-width>
             <EventHeader {...event} />
@@ -39,7 +46,7 @@ const EventDetailsContent = async ({ params }: EventPageProps) => {
                     <EventContent event={event} />
                     {/* Right-side --Booking Form */}
                     <BookingProvider value={{eventId, slug: event.slug}}>
-                        <BookForm />
+                        <BookForm event={event} bookingCount={bookingCount} />
                     </BookingProvider>
                 </div>
                 {/* Similar Events */}

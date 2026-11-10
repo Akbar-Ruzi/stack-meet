@@ -41,17 +41,6 @@ const getValidationError = (name: string, email: string, phone: string) => {
     return null;
 };
 
-// Bookings hidden with hiddenByUser still count, because those spots were still booked
-export const getBookingCount = async (eventId: string) => {
-    try {
-        await connectDB();
-        return await Booking.countDocuments({eventId});
-    } catch (e) {
-        console.log('Get booking count failed:', e);
-        return 0;
-    }
-};
-
 export const createBooking = async ({eventId, email, name, phone}: CreateBookingParams) => {
     try {
         const cleanName = cleanText(name);

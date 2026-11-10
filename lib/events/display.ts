@@ -42,6 +42,28 @@ export function formatFullDate(date: string) {
     return dayAndDate ? `${dayAndDate} ${date.slice(0, 4)}` : "";
 }
 
+// "Saturday, November 14, 2026", or an empty string when the date isn't set.
+export function formatLongDate(date: string) {
+    const parsed = new Date(`${date}T00:00:00Z`);
+    if (isNaN(parsed.getTime())) return "";
+
+    return new Intl.DateTimeFormat("en-US", {
+        timeZone: "UTC",
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+    }).format(parsed);
+}
+
+// The location line on the booking card. Links are shown after booking because the app can't send email.
+export function getBookingPlace({ mode, venue, location }: Pick<EventFields, "mode" | "venue" | "location">) {
+    if (mode === "online") return "Online — link shown after booking";
+
+    const place = [venue, location].filter(Boolean).join(", ");
+    return mode === "hybrid" ? `${place} — online link shown after booking` : place;
+}
+
 export function getEventPlace({ mode, location }: Pick<EventFields, "mode" | "location">) {
     return mode === "online" ? "Online" : location ?? "";
 }
