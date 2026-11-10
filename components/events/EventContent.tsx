@@ -1,40 +1,38 @@
 import Image from "next/image";
-import EventDetailsItem from "@/components/events/EventDetailsItem";
 import EventAgenda from "@/components/events/EventAgenda";
-import EventTags from "@/components/events/EventTags";
+import EventOrganizer from "@/components/events/EventOrganizer";
 import type { EventFields } from "@/types/event.types";
 
-type Props = {
-    event:EventFields;
-}
+type EventContentProps = {
+    event: EventFields;
+};
 
-const EventContent = ({event}: Props) => {
-    const { image, overview, date, location, time, mode, audience, agenda, organizer, tags } = event;
+const EventContent = ({ event }: EventContentProps) => {
+    const { image, overview, date, agenda, organizer } = event;
+
     return (
-        <div className="content">
-            <Image src={image} alt="Event Banner" width={800} height={800} className="banner" />
-            <section className="flex-col-gap-2">
-                <h2>Overview</h2>
-                <p>{overview}</p>
+        <div className="flex min-w-0 flex-[999_1_600px] flex-col gap-12 wrap-anywhere">
+            <div className="relative aspect-video overflow-hidden rounded-2xl border border-border bg-field">
+                <Image
+                    src={image}
+                    alt="Event cover image"
+                    fill
+                    preload
+                    sizes="(max-width: 1023px) 100vw, 800px"
+                    className="object-cover"
+                />
+            </div>
+
+            <section>
+                <h2 className="mb-3.5 text-[26px] tracking-[-0.01em]">About this event</h2>
+                <p className="text-[17px] leading-[1.65] text-body">{overview}</p>
             </section>
 
-            <section className="flex-col-gap-2">
-                <h2>Event Details</h2>
-                <EventDetailsItem icon="/icons/calendar.svg" alt="calendar" label={date} />
-                <EventDetailsItem icon="/icons/clock.svg" alt="clock" label={time} />
-                {location && <EventDetailsItem icon="/icons/pin.svg" alt="pin" label={location} />}
-                <EventDetailsItem icon="/icons/mode.svg" alt="mode" label={mode} />
-                <EventDetailsItem icon="/icons/audience.svg" alt="audience" label={audience} />
-            </section>
+            {agenda && agenda.length > 0 && <EventAgenda agendaItems={agenda} date={date} />}
 
-            {agenda && agenda.length > 0 && <EventAgenda agendaItems={agenda} />}
-            <section className="flex-col-gap-2">
-                <h2>About the Organizer</h2>
-                <p>{organizer}</p>
-            </section>
-            <EventTags tags={tags ?? []} />
+            <EventOrganizer organizer={organizer} />
         </div>
-    )
-}
+    );
+};
 
-export default EventContent
+export default EventContent;

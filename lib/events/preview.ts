@@ -10,7 +10,7 @@ const toSlug = (title: string) =>
         .replace(/-+/g, "-")
         .replace(/^-|-$/g, "");
 
-const getInitials = (name: string) =>
+export const getInitials = (name: string) =>
     name
         .split(/\s+/)
         .filter(Boolean)

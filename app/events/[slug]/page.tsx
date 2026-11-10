@@ -44,7 +44,7 @@ const EventDetailsContent = async ({ params }: EventPageProps) => {
                 </div>
                 {/* Similar Events */}
                 {similarEvents.length > 0 && (
-                    <div className="flex w-full flex-col gap-4 pt-20">
+                    <div className="flex w-full flex-col gap-4 pt-18">
                         <h2>Similar Events</h2>
                         <div className="events">
                             {similarEvents.map((similarEvents) => (

@@ -191,28 +191,10 @@
 
     #event {
         .details {
-            @apply flex w-full flex-col lg:flex-row gap-12 items-start mt-12 max-lg:items-center;
-
-            .content {
-                @apply flex flex-2 flex-col gap-8 max-lg:w-full;
-
-                .banner {
-                    @apply max-h-114.25 w-full rounded-lg object-cover;
-                }
-
-                .agenda {
-                    @apply flex flex-col gap-2;
-
-                    ul {
-                        li {
-                            @apply text-light-100 text-lg max-sm:text-sm;
-                        }
-                    }
-                }
-            }
+            @apply flex flex-wrap items-start gap-10;
 
             .booking {
-                @apply flex-1 w-full p-4 border-l border-gray-700;
+                @apply max-w-100 flex-[1_1_320px];
 
                 .signup-card {
                     @apply bg-dark-100 border-dark-200 card-shadow flex w-full flex-col gap-6 rounded-[10px] border px-5 py-6;
@@ -226,10 +208,6 @@
 
         p {
             @apply text-light-100 text-lg max-sm:text-sm;
-        }
-
-        .flex-col-gap-2 {
-            @apply flex flex-col gap-2;
         }
 
         .flex-row-gap-2 {

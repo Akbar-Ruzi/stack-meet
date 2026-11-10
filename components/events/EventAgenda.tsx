@@ -1,14 +1,27 @@
 import type { AgendaItem } from "@/database/event.model";
+import { formatDayAndDate } from "@/lib/events/display";
 
-const EventAgenda = ({agendaItems}: {agendaItems: AgendaItem[]}) => (
-    <div className="agenda">
-        <h2>Agenda</h2>
-        <ul>
-            {agendaItems.map(({start, title}, index) => (
-                <li key={`${start}-${title}-${index}`}>{start} {title}</li>
+const BAR_COLORS = ["bg-accent", "bg-format-online", "bg-format-in-person", "bg-format-hybrid", "bg-[#A78BFA]"];
+
+type EventAgendaProps = {
+    agendaItems: AgendaItem[];
+    date: string;
+};
+
+const EventAgenda = ({ agendaItems, date }: EventAgendaProps) => (
+    <section>
+        <h2 className="mb-2.5 text-[26px] tracking-[-0.01em]">Agenda</h2>
+        <p className="mb-5 font-mono text-[13px] text-muted">{formatDayAndDate(date)}</p>
+        <ol className="flex flex-col gap-6.5">
+            {agendaItems.map(({ start, title }, index) => (
+                <li key={`${start}-${title}-${index}`} className="flex items-center gap-5">
+                    <time className="w-16 flex-none text-right text-[22px] font-bold leading-[1.1] tracking-[-0.01em]">{start}</time>
+                    <span aria-hidden="true" className={`h-11 w-1 flex-none rounded-[4px] ${BAR_COLORS[index % BAR_COLORS.length]}`} />
+                    <div className="min-w-0 text-lg font-medium leading-[1.3]">{title}</div>
+                </li>
             ))}
-        </ul>
-    </div>
-)
+        </ol>
+    </section>
+);
 
 export default EventAgenda;
