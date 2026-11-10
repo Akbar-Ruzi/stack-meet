@@ -42,8 +42,8 @@ export function toEventFormData(values: EventFormValues): FormData {
         "agenda",
         JSON.stringify(
             values.agenda
-                .map(({ time, item }) => ({ time: time.trim(), item: item.trim() }))
-                .filter(({ time, item }) => time && item),
+                .map(({ time, item }) => ({ start: time.trim(), title: item.trim() }))
+                .filter(({ start, title }) => start && title),
         ),
     );
 
@@ -51,6 +51,9 @@ export function toEventFormData(values: EventFormValues): FormData {
         data.append("venue", values.venue.trim());
         data.append("location", values.location.trim());
     }
+
+    const onlineUrl = values.onlineUrl.trim();
+    if (values.mode !== "in-person" && onlineUrl) data.append("onlineUrl", onlineUrl);
 
     const image = values.image?.[0];
     if (image) data.append("image", image);

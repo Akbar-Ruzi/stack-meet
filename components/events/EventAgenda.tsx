@@ -4,8 +4,8 @@ const EventAgenda = ({agendaItems}: {agendaItems: AgendaItem[]}) => (
     <div className="agenda">
         <h2>Agenda</h2>
         <ul>
-            {agendaItems.map(({time, item}, index) => (
-                <li key={`${time}-${item}-${index}`}>{time} {item}</li>
+            {agendaItems.map(({start, title}, index) => (
+                <li key={`${start}-${title}-${index}`}>{start} {title}</li>
             ))}
         </ul>
     </div>

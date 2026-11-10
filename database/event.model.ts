@@ -2,8 +2,8 @@ import { Schema, model, models, Document, Types } from 'mongoose';
 import type { EventFields } from "@/types/event.types";
 
 export interface AgendaItem {
-  time: string;
-  item: string;
+  start: string;
+  title: string;
 }
 
 // IEvent full Mongoose event document type and it is the real database document object created from that blueprint(EventFields)
@@ -91,14 +91,14 @@ const EventSchema = new Schema<IEvent>(
       type: [
         {
           _id: false,
-          time: {
+          start: {
             type: String,
-            required: [true, 'Agenda item time is required'],
+            required: [true, 'Agenda item start time is required'],
             trim: true,
           },
-          item: {
+          title: {
             type: String,
-            required: [true, 'Agenda item text is required'],
+            required: [true, 'Agenda item title is required'],
             trim: true,
           },
         },

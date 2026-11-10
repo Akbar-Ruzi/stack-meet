@@ -181,4 +181,4 @@ The app uses API routes and Server Actions, which both reach MongoDB through Mon
 
 Events link to their owner through `createdBy`, and bookings link to their event through `eventId`. Guest bookings have no `userId`.
 
-An event's `mode` is `online`, `in-person` or `hybrid`. In-person and hybrid events require a `venue` and `location`. `onlineUrl` is hidden from public responses, and each `agenda` item has a `time` and an `item`.
+An event's `mode` is `online`, `in-person` or `hybrid`. In-person and hybrid events require a `venue` and `location`. `onlineUrl` is hidden from public responses, and each `agenda` item has a `start` and a `title`.
