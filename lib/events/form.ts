@@ -25,6 +25,13 @@ export const FORM_STEPS = [
 
 export const TOTAL_STEPS = FORM_STEPS.length;
 
+// Blank rows are allowed in the form, but they aren't part of the event.
+export function getFilledAgendaRows(rows: EventFormValues["agenda"]) {
+    return rows
+        .map(({ time, item }) => ({ start: time.trim(), title: item.trim() }))
+        .filter(({ start, title }) => start && title);
+}
+
 // Builds the body POST /api/events expects.
 export function toEventFormData(values: EventFormValues): FormData {
     const data = new FormData();
@@ -40,11 +47,7 @@ export function toEventFormData(values: EventFormValues): FormData {
     data.append("tags", JSON.stringify(values.tags));
     data.append(
         "agenda",
-        JSON.stringify(
-            values.agenda
-                .map(({ time, item }) => ({ start: time.trim(), title: item.trim() }))
-                .filter(({ start, title }) => start && title),
-        ),
+        JSON.stringify(getFilledAgendaRows(values.agenda)),
     );
 
     if (values.mode !== "online") {

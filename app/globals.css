@@ -157,6 +157,11 @@
         @apply mx-auto container flex flex-col sm:px-10 px-5 py-10;
     }
 
+    /* Stops the page scrolling behind an open dialog. */
+    html:has(dialog[open]) {
+        overflow: hidden;
+    }
+
     /* Redesigned pages set their own width and padding. Next.js keeps visited pages
        in the DOM with display: none, so hidden ones have to be ignored here. */
     main:has(> [data-full-width]:not([style*="none"])) {

@@ -23,6 +23,19 @@ export function getDateParts(date: string) {
     };
 }
 
+// "Sat, Nov 14", or an empty string when the date isn't set.
+export function formatDayAndDate(date: string) {
+    const parsed = new Date(`${date}T00:00:00Z`);
+    if (isNaN(parsed.getTime())) return "";
+
+    return new Intl.DateTimeFormat("en-US", {
+        timeZone: "UTC",
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+    }).format(parsed);
+}
+
 export function getEventPlace({ mode, location }: Pick<EventFields, "mode" | "location">) {
     return mode === "online" ? "Online" : location ?? "";
 }

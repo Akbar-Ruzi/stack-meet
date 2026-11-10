@@ -45,14 +45,16 @@ const EventDetailsContent = async ({ params }: EventPageProps) => {
                 </BookingProvider>
             </div>
             {/* Similar Events */}
-            <div className="flex w-full flex-col gap-4 pt-20">
-                <h2>Similar Events</h2>
-                <div className="events">
-                    {similarEvents.length > 0 && similarEvents.map((similarEvents) => (
-                        <EventCard key={similarEvents.title} {...similarEvents} />
-                    ))}
+            {similarEvents.length > 0 && (
+                <div className="flex w-full flex-col gap-4 pt-20">
+                    <h2>Similar Events</h2>
+                    <div className="events">
+                        {similarEvents.map((similarEvents) => (
+                            <EventCard key={similarEvents.title} {...similarEvents} />
+                        ))}
+                    </div>
                 </div>
-            </div>
+            )}
         </section>
     )
 }

@@ -45,7 +45,7 @@ const CreateEventForm = () => {
                     </div>
                 </form>
 
-                <EventPreview control={form.control} />
+                <EventPreview form={form} />
             </section>
         </>
     );
