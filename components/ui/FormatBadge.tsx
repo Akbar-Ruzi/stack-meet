@@ -1,5 +1,5 @@
 import type { EventFields } from "@/types/event.types";
-import { FORMAT_LABELS } from "@/lib/event-display";
+import { FORMAT_LABELS } from "@/lib/events/display";
 
 const FORMAT_COLORS: Record<EventFields["mode"], string> = {
     online: "border-format-online bg-format-online",

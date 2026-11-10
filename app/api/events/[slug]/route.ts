@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import connectDB from "@/lib/mongodb";
+import connectDB from "@/lib/data/mongodb";
 import Event from '@/database/event.model';
 import { getEventBySlug } from "@/lib/data/events";
 import { auth } from "@/auth";

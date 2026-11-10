@@ -1,4 +1,4 @@
-import { firstParam } from "@/lib/event-search";
+import { firstParam } from "@/lib/events/search";
 import type { AuthMode } from "@/hooks/useAuthForm";
 
 export type AuthSearchParams = Record<string, string | string[] | undefined>;

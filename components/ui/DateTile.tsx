@@ -1,4 +1,4 @@
-import { getDateParts } from "@/lib/event-display";
+import { getDateParts } from "@/lib/events/display";
 
 const DateTile = ({ date }: { date: string }) => {
     const { month, day, weekday } = getDateParts(date);

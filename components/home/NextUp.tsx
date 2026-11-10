@@ -2,7 +2,7 @@ import Link from "next/link";
 import EventCard from "@/components/events/EventCard";
 import ModeFilter from "@/components/home/ModeFilter";
 import { getUpcomingEvents, type EventRecord } from "@/lib/data/events";
-import type { HomeQuery } from "@/lib/home-query";
+import type { HomeQuery } from "@/lib/url/home-query";
 
 // The home page shows only the next few events. The calendar lists them all.
 const NEXT_UP_LIMIT = 9;

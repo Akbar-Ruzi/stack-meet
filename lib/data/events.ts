@@ -2,10 +2,10 @@ import "server-only";
 
 import type { FilterQuery } from "mongoose";
 
-import connectDB from "@/lib/mongodb";
+import connectDB from "@/lib/data/mongodb";
 import { Event } from "@/database";
 import type { EventFields } from "@/types/event.types";
-import type { EventMode, EventSearch } from "@/lib/event-search";
+import type { EventMode, EventSearch } from "@/lib/events/search";
 
 // An event as pages receive it: plain data with string ids, safe to pass to client components.
 export type EventRecord = EventFields & { _id: string; createdBy: string };
@@ -31,7 +31,7 @@ const clean = (value?: string) => value?.trim().toLowerCase().replace(/^#/, "") 
 
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-// The database version of filterEvents in lib/event-search.ts, so the limit applies after filtering.
+// The database version of filterEvents in lib/events/search.ts, so the limit applies after filtering.
 function buildUpcomingFilter({ q, where, mode }: UpcomingEventsOptions): FilterQuery<EventFields> {
     const conditions: FilterQuery<EventFields>[] = [{ date: { $gte: today() } }];
 

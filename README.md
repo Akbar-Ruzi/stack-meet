@@ -72,13 +72,12 @@ stack-meet/
 │   ├── auth/                   # Sign-in and sign-up forms
 │   └── createEvent/            # Create event form
 ├── database/                   # Mongoose models: User, Event, Booking
+├── context/                    # React context providers
 ├── lib/
-│   ├── actions/                # Server Actions for bookings and events
-│   ├── context/                # React context providers
-│   ├── constants.ts            # Shared constants
-│   ├── event-display.ts        # Date, format and place text for events
-│   ├── mongodb.ts              # Cached database connection
-│   └── utils.ts                # Shared helpers
+│   ├── actions/                # Server Actions for bookings
+│   ├── data/                   # Event queries and the cached database connection
+│   ├── events/                 # Event display text, search filters and the create event form
+│   └── url/                    # Reading the query strings of the home and sign-in pages
 ├── public/                     # Icons and images
 ├── types/                      # Shared TypeScript types and type extensions
 ├── auth.ts                     # Auth.js configuration
@@ -98,7 +97,7 @@ Each file has one job: pages put sections together, components render UI, and lo
 | Building blocks shared across the site | `components/ui/` | `Button`, `Input`, `FormatBadge` |
 | Components for one area of the site | `components/<area>/` | `components/home/Hero.tsx` |
 | Custom hooks used by more than one component | `hooks/` | `useDropdownMenu` |
-| Plain functions, types and constants | `lib/` | `lib/event-search.ts` |
+| Plain functions, types and constants | `lib/` | `lib/events/search.ts` |
 | Database reads and permission checks | `lib/data/` | event queries, marked `server-only` |
 | Server Actions that change data | `lib/actions/` | `createBooking` |
 

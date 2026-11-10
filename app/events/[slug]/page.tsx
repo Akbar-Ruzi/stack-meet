@@ -5,7 +5,7 @@ import EventContent from "@/components/events/EventContent";
 import BookForm from "@/components/events/BookForm";
 import { getEventBySlug, getSimilarEvents, type EventRecord } from "@/lib/data/events";
 import EventCard from "@/components/events/EventCard";
-import {BookingProvider} from "@/lib/context/booking-context";
+import {BookingProvider} from "@/context/booking-context";
 
 type EventPageProps = {
     params: Promise<{ slug: string }>;

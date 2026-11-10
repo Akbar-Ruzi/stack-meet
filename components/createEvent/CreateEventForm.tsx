@@ -4,7 +4,7 @@ import BasicsStep from "@/components/createEvent/BasicsStep";
 import WhenWhereStep from "@/components/createEvent/WhenWhereStep";
 import Button from "@/components/ui/Button";
 import { useCreateEventForm } from "@/hooks/useCreateEventForm";
-import { TOTAL_STEPS } from "@/lib/event-form";
+import { TOTAL_STEPS } from "@/lib/events/form";
 
 const CreateEventForm = () => {
     const { form, step, isSubmitting, goBack, handleSubmit, handleChange, handleKeyDown } = useCreateEventForm();

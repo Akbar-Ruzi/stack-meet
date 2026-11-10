@@ -1,4 +1,4 @@
-import { firstParam, isEventMode, type EventMode, type EventSearch } from "@/lib/event-search";
+import { firstParam, isEventMode, type EventMode, type EventSearch } from "@/lib/events/search";
 
 export type HomeSearchParams = Record<string, string | string[] | undefined>;
 export type HomeQuery = EventSearch & { mode?: EventMode };

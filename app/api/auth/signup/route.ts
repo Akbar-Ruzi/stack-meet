@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 
-import connectDB from "@/lib/mongodb";
+import connectDB from "@/lib/data/mongodb";
 import User from "@/database/user.model";
 
 type SignupBody = {

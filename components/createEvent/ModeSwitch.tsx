@@ -1,7 +1,7 @@
 import { useController, type Control } from "react-hook-form";
 import type { EventFormValues } from "@/types/event.types";
-import type { EventMode } from "@/lib/event-search";
-import { FORMAT_LABELS } from "@/lib/event-display";
+import type { EventMode } from "@/lib/events/search";
+import { FORMAT_LABELS } from "@/lib/events/display";
 
 const OPTIONS: { value: EventMode; selectedClasses: string }[] = [
     { value: "online", selectedClasses: "bg-format-online" },

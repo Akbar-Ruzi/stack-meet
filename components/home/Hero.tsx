@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import type { EventSearch } from "@/lib/event-search";
+import type { EventSearch } from "@/lib/events/search";
 
 const POPULAR_TAGS = ["react", "ai", "typescript", "python", "open-source"];
 

@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import Hero from "@/components/home/Hero";
 import HostBox from "@/components/home/HostBox";
 import NextUp from "@/components/home/NextUp";
-import { parseHomeQuery, type HomeSearchParams } from "@/lib/home-query";
+import { parseHomeQuery, type HomeSearchParams } from "@/lib/url/home-query";
 
 export default function Page({ searchParams }: { searchParams: Promise<HomeSearchParams> }) {
     const query = searchParams.then(parseHomeQuery);

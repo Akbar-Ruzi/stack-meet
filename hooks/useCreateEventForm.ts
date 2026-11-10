@@ -3,13 +3,13 @@ import { useForm, type Path, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 
-import { useNavbarLock } from "@/lib/context/navbar-lock-context";
+import { useNavbarLock } from "@/context/navbar-lock-context";
 import {
     EVENT_FORM_DEFAULTS,
-    STEP_SCHEMAS,
     TOTAL_STEPS,
     toEventFormData,
-} from "@/lib/event-form";
+} from "@/lib/events/form";
+import { STEP_SCHEMAS } from "@/lib/events/form-zod-schema";
 import type { EventFormValues } from "@/types/event.types";
 
 // Publish takes Continue's place, so the second click of a double-click would land on it.

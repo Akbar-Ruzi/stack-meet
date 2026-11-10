@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import AuthPanel from "@/components/auth/AuthPanel";
-import { isFromCreateEvent, parseAuthMode, parseNextPath, type AuthSearchParams } from "@/lib/auth-query";
+import { isFromCreateEvent, parseAuthMode, parseNextPath, type AuthSearchParams } from "@/lib/url/auth-query";
 
 type SignInPageProps = {
     searchParams: Promise<AuthSearchParams>;

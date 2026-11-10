@@ -1,7 +1,7 @@
 'use client';
 import { createBooking } from "@/lib/actions/booking.action";
 import { useState } from "react";
-import { useBookingContext } from "@/lib/context/booking-context";
+import { useBookingContext } from "@/context/booking-context";
 import posthog from "posthog-js";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

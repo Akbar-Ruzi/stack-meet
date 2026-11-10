@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { FORMAT_LABELS } from "@/lib/event-display";
-import type { EventMode, EventSearch } from "@/lib/event-search";
+import { FORMAT_LABELS } from "@/lib/events/display";
+import type { EventMode, EventSearch } from "@/lib/events/search";
 
 const OPTIONS: { value?: EventMode; label: string }[] = [
     { label: "All" },

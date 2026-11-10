@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import AccountMenu, { type AccountUser } from "@/components/layout/AccountMenu";
-import { useNavbarLock } from "@/lib/context/navbar-lock-context";
+import { useNavbarLock } from "@/context/navbar-lock-context";
 
 const getActiveHref = (pathname: string) => {
     if (pathname.startsWith("/auth")) return "/auth/sign-in";

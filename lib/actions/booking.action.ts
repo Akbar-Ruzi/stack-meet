@@ -1,6 +1,6 @@
 'use server';
 import { auth } from "@/auth";
-import connectDB from "@/lib/mongodb";
+import connectDB from "@/lib/data/mongodb";
 import Booking from "@/database/booking.model";
 
 type CreateBookingParams = {

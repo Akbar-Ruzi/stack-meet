@@ -5,7 +5,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Toaster } from 'react-hot-toast';
-import { NavbarLockProvider } from "@/lib/context/navbar-lock-context";
+import { NavbarLockProvider } from "@/context/navbar-lock-context";
 import { auth } from "@/auth";
 
 const spaceGrotesk = Space_Grotesk({

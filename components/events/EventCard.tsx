@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { EventFields } from "@/types/event.types";
 import DateTile from "@/components/ui/DateTile";
 import FormatBadge from "@/components/ui/FormatBadge";
-import { getEventPlace } from "@/lib/event-display";
+import { getEventPlace } from "@/lib/events/display";
 
 type PropsType = Pick<
     EventFields,

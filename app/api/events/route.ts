@@ -3,7 +3,7 @@ import { v2 as cloudinary } from 'cloudinary';
 import mongoose from "mongoose";
 import { auth } from "@/auth";
 
-import connectDB from "@/lib/mongodb";
+import connectDB from "@/lib/data/mongodb";
 import Event from '@/database/event.model';
 import { getUpcomingEvents } from "@/lib/data/events";
 
