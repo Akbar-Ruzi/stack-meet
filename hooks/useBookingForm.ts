@@ -39,7 +39,7 @@ export function useBookingForm() {
 
             if (booking.success) {
                 setSubmitted(true);
-                posthog.capture("event_booked", { eventId, slug, email: values.email });
+                posthog.capture("event_booked", { eventId, slug });
                 router.refresh(); // Reloads the booked count from the server.
             } else {
                 toast.error(booking.message ?? BOOKING_FAILED_MESSAGE);
