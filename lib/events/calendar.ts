@@ -1,4 +1,17 @@
 import type { EventFields } from "@/types/event.types";
+import type { EventMode } from "@/lib/events/search";
+
+// The calendar's search box and sidebar filters.
+// formats: undefined means every format, [] means none were left ticked.
+export type CalendarSearch = {
+    q?: string;
+    formats?: EventMode[];
+    topics: string[];
+    city?: string;
+};
+
+export const hasCalendarFilters = ({ formats, topics, city }: CalendarSearch) =>
+    formats !== undefined || topics.length > 0 || Boolean(city);
 
 export type CalendarMonth<T> = {
     key: string; // "2026-11", unique per month

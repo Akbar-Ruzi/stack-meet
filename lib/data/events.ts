@@ -7,6 +7,8 @@ import connectDB from "@/lib/data/mongodb";
 import { Event } from "@/database";
 import type { EventFields } from "@/types/event.types";
 import type { EventMode, EventSearch } from "@/lib/events/search";
+import type { CalendarSearch } from "@/lib/events/calendar";
+import { FORMAT_LABELS } from "@/lib/events/display";
 
 // An event as pages receive it: plain data with string ids, safe to pass to client components.
 export type EventRecord = EventFields & { _id: string; createdBy: string };
@@ -72,6 +74,53 @@ export const getEventBySlug = cache(async (slug: string): Promise<EventRecord | 
 
     return event ? toRecord(event) : null;
 });
+
+// The calendar's search matches the title, a tag, the city or the format name ("online", "hybrid"…).
+function buildCalendarFilter({ q, formats, topics, city }: CalendarSearch): FilterQuery<EventFields> {
+    const conditions: FilterQuery<EventFields>[] = [{ date: { $gte: today() } }];
+
+    const what = clean(q);
+    if (what) {
+        const pattern = new RegExp(escapeRegex(what), "i");
+        const modes = (Object.keys(FORMAT_LABELS) as EventMode[]).filter((mode) =>
+            FORMAT_LABELS[mode].toLowerCase().includes(what),
+        );
+        conditions.push({
+            $or: [{ title: pattern }, { tags: pattern }, { location: pattern }, ...(modes.length ? [{ mode: { $in: modes } }] : [])],
+        });
+    }
+
+    if (formats) conditions.push({ mode: { $in: formats } }); // [] matches nothing, on purpose
+    if (topics.length) conditions.push({ tags: { $in: topics } });
+    if (city) conditions.push({ location: new RegExp(escapeRegex(city), "i") });
+
+    return { $and: conditions };
+}
+
+// Upcoming events matching the calendar's search and filters, soonest first.
+export async function getCalendarEvents(search: CalendarSearch): Promise<EventRecord[]> {
+    await connectDB();
+    const events = await Event.find(buildCalendarFilter(search))
+        .select(PUBLIC_FIELDS)
+        .sort({ date: 1, time: 1 })
+        .lean<EventDoc[]>();
+
+    return events.map(toRecord);
+}
+
+// The tags used most by upcoming events, most used first, for the calendar's topic filter.
+export async function getPopularTags(limit: number): Promise<string[]> {
+    await connectDB();
+    const rows = await Event.aggregate<{ _id: string }>([
+        { $match: { date: { $gte: today() } } },
+        { $unwind: "$tags" },
+        { $group: { _id: "$tags", count: { $sum: 1 } } },
+        { $sort: { count: -1, _id: 1 } },
+        { $limit: limit },
+    ]);
+
+    return rows.map((row) => row._id);
+}
 
 // Upcoming events that share a tag with the given event, soonest first. When there are fewer
 // than `limit`, the rest is filled with other upcoming events, so the section is never empty.

@@ -1,15 +1,27 @@
+import CalendarEmptyState from "@/components/calendar/CalendarEmptyState";
 import TimelineEvent from "@/components/calendar/TimelineEvent";
-import { getUpcomingEvents, type EventRecord } from "@/lib/data/events";
-import { groupEventsByMonth } from "@/lib/events/calendar";
+import type { EventRecord } from "@/lib/data/events";
+import { groupEventsByMonth, hasCalendarFilters, type CalendarSearch } from "@/lib/events/calendar";
+import { calendarHref } from "@/lib/url/calendar-query";
 
-// Every upcoming event, soonest first, grouped by month.
-const CalendarTimeline = async () => {
-    const events = await getUpcomingEvents().catch((error): EventRecord[] => {
-        console.error("Loading the calendar events failed:", error);
-        return [];
-    });
+type CalendarTimelineProps = {
+    search: Promise<CalendarSearch>;
+    events: Promise<EventRecord[]>;
+};
 
-    if (events.length === 0) return <p className="text-muted">No upcoming events yet.</p>;
+// The matching events, soonest first, grouped by month. Months with no matches don't appear.
+const CalendarTimeline = async ({ search: searchPromise, events: eventsPromise }: CalendarTimelineProps) => {
+    const [search, events] = await Promise.all([searchPromise, eventsPromise]);
+
+    if (events.length === 0) {
+        if (search.q) {
+            return <CalendarEmptyState title="No events match your search." action="Clear search" href={calendarHref({ ...search, q: undefined })} />;
+        }
+        if (hasCalendarFilters(search)) {
+            return <CalendarEmptyState title="No events match your filters." action="Clear filters" href="/calendar" />;
+        }
+        return <p className="text-muted">No upcoming events yet.</p>;
+    }
 
     return groupEventsByMonth(events).map((month) => (
         <section key={month.key} aria-labelledby={`month-${month.key}`}>

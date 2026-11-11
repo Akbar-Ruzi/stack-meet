@@ -1,7 +1,18 @@
 import { Suspense } from "react";
+import CalendarSearch, { CalendarSearchWithValues } from "@/components/calendar/CalendarSearch";
+import CalendarSidebar from "@/components/calendar/CalendarSidebar";
 import CalendarTimeline from "@/components/calendar/CalendarTimeline";
+import { getCalendarEvents, type EventRecord } from "@/lib/data/events";
+import { parseCalendarQuery, type CalendarSearchParams } from "@/lib/url/calendar-query";
 
-export default function CalendarPage() {
+export default function CalendarPage({ searchParams }: { searchParams: Promise<CalendarSearchParams> }) {
+    const search = searchParams.then(parseCalendarQuery);
+    // One query, shared by the search status row and the timeline.
+    const events = search.then(getCalendarEvents).catch((error): EventRecord[] => {
+        console.error("Loading the calendar events failed:", error);
+        return [];
+    });
+
     return (
         <div data-full-width>
             <section className="mx-auto flex max-w-300 flex-wrap items-end justify-between gap-8 px-6 pb-10 pt-16">
@@ -14,12 +25,18 @@ export default function CalendarPage() {
                         Scroll the months ahead, or narrow it down by format, topic and city.
                     </p>
                 </div>
+                <Suspense fallback={<CalendarSearch />}>
+                    <CalendarSearchWithValues search={search} events={events} />
+                </Suspense>
             </section>
 
             <section className="mx-auto flex max-w-300 flex-wrap items-start gap-10 px-6 pb-24">
+                <Suspense fallback={null}>
+                    <CalendarSidebar search={search} />
+                </Suspense>
                 <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-12">
                     <Suspense fallback={<p className="text-muted">Loading events...</p>}>
-                        <CalendarTimeline />
+                        <CalendarTimeline search={search} events={events} />
                     </Suspense>
                 </div>
             </section>
