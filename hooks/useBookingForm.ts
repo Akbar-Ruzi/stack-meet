@@ -6,23 +6,12 @@ import posthog from "posthog-js";
 import toast from "react-hot-toast";
 import { useBookingContext } from "@/context/booking-context";
 import { createBooking } from "@/lib/actions/booking.action";
+import { bookingSchema, toBookingErrors, type BookingErrors } from "@/lib/bookings/booking-zod-schema";
 
-type BookingValues = { name: string; email: string; phone: string };
-type BookingErrors = Partial<Record<keyof BookingValues, string>>;
+type BookingFormValues = { name: string; email: string; phone: string };
 
-const EMPTY_VALUES: BookingValues = { name: "", email: "", phone: "" };
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMPTY_VALUES: BookingFormValues = { name: "", email: "", phone: "" };
 const BOOKING_FAILED_MESSAGE = "Unable to create booking right now. Please try again.";
-
-function getFieldErrors({ name, email }: BookingValues): BookingErrors {
-    const errors: BookingErrors = {};
-    if (!name.trim()) errors.name = "Name is required.";
-
-    if (!email.trim()) errors.email = "Email is required.";
-    else if (!EMAIL_REGEX.test(email.trim())) errors.email = "Please enter a valid email address.";
-
-    return errors;
-}
 
 export function useBookingForm() {
     const { eventId, slug } = useBookingContext();
@@ -32,7 +21,7 @@ export function useBookingForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
-    const setValue = (field: keyof BookingValues, value: string) => {
+    const setValue = (field: keyof BookingFormValues, value: string) => {
         setValues((current) => ({ ...current, [field]: value }));
         setErrors((current) => ({ ...current, [field]: undefined }));
     };
@@ -40,20 +29,20 @@ export function useBookingForm() {
     const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        const fieldErrors = getFieldErrors(values);
-        setErrors(fieldErrors);
-        if (Object.keys(fieldErrors).length > 0) return;
+        const result = bookingSchema.safeParse(values);
+        setErrors(result.success ? {} : toBookingErrors(result.error));
+        if (!result.success) return;
 
         setIsSubmitting(true);
         try {
-            const result = await createBooking({ eventId, slug, ...values });
+            const booking = await createBooking({ eventId, slug, ...values });
 
-            if (result.success) {
+            if (booking.success) {
                 setSubmitted(true);
                 posthog.capture("event_booked", { eventId, slug, email: values.email });
                 router.refresh(); // Reloads the booked count from the server.
             } else {
-                toast.error(result.message ?? BOOKING_FAILED_MESSAGE);
+                toast.error(booking.message ?? BOOKING_FAILED_MESSAGE);
                 posthog.captureException("Booking creation failed");
             }
         } catch (error) {

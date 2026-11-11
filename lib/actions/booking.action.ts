@@ -2,6 +2,7 @@
 import { auth } from "@/auth";
 import connectDB from "@/lib/data/mongodb";
 import Booking from "@/database/booking.model";
+import { bookingSchema } from "@/lib/bookings/booking-zod-schema";
 
 type CreateBookingParams = {
     eventId: string;
@@ -16,41 +17,14 @@ type CreateBookingResult = {
     message?: string;
 }
 
-const MAX_NAME_LENGTH = 50;
-const MIN_PHONE_DIGITS = 7;
-const MAX_PHONE_DIGITS = 15;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_REGEX = /^\+?[\d\s().-]+$/;
-
-// Server actions can be called directly, so values may not be the strings the types promise
-const cleanText = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
-
-const getValidationError = (name: string, email: string, phone: string) => {
-    if (!name) return 'Name is required.';
-    if (name.length > MAX_NAME_LENGTH) return `Name cannot exceed ${MAX_NAME_LENGTH} characters.`;
-    if (!email) return 'Email is required.';
-    if (!EMAIL_REGEX.test(email)) return 'Please enter a valid email address.';
-
-    if (phone) {
-        const digitCount = phone.replace(/\D/g, '').length;
-        if (!PHONE_REGEX.test(phone) || digitCount < MIN_PHONE_DIGITS || digitCount > MAX_PHONE_DIGITS) {
-            return 'Please enter a valid phone number.';
-        }
-    }
-
-    return null;
-};
-
 export const createBooking = async ({eventId, email, name, phone}: CreateBookingParams) => {
     try {
-        const cleanName = cleanText(name);
-        const normalizedEmail = cleanText(email).toLowerCase();
-        const cleanPhone = cleanText(phone);
-
-        const validationError = getValidationError(cleanName, normalizedEmail, cleanPhone);
-        if (validationError) {
-            return {success: false, message: validationError} satisfies CreateBookingResult;
+        // The same rules as the form. The schema also trims the values and lowercases the email.
+        const parsed = bookingSchema.safeParse({ name, email, phone });
+        if (!parsed.success) {
+            return {success: false, message: parsed.error.issues[0].message} satisfies CreateBookingResult;
         }
+        const { name: cleanName, email: normalizedEmail, phone: cleanPhone } = parsed.data;
 
         await connectDB();
         const session = await auth();
