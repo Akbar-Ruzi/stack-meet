@@ -2,6 +2,7 @@
 import { auth } from "@/auth";
 import connectDB from "@/lib/data/mongodb";
 import Booking from "@/database/booking.model";
+import Event from "@/database/event.model";
 import { bookingSchema } from "@/lib/bookings/booking-zod-schema";
 
 type CreateBookingParams = {
@@ -15,6 +16,7 @@ type CreateBookingParams = {
 type CreateBookingResult = {
     success: boolean;
     message?: string;
+    onlineUrl?: string; // Sent only after a successful booking, because the app can't email it
 }
 
 export const createBooking = async ({eventId, email, name, phone}: CreateBookingParams) => {
@@ -36,7 +38,11 @@ export const createBooking = async ({eventId, email, name, phone}: CreateBooking
             email: normalizedEmail,
             phone: cleanPhone || undefined,
         });
-        return {success: true} satisfies CreateBookingResult;
+        // onlineUrl is left out of event reads by default, so it's asked for explicitly here.
+        const event = await Event.findById(eventId).select("+onlineUrl mode").lean<{ mode: string; onlineUrl?: string }>();
+        const onlineUrl = event && event.mode !== "in-person" ? event.onlineUrl : undefined;
+
+        return {success: true, onlineUrl} satisfies CreateBookingResult;
     } catch (e) {
         if (typeof e === 'object' && e !== null && 'code' in e && (e as { code?: number }).code === 11000) {
             return {

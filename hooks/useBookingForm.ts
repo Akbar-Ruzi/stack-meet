@@ -20,6 +20,7 @@ export function useBookingForm() {
     const [errors, setErrors] = useState<BookingErrors>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const [onlineUrl, setOnlineUrl] = useState<string>();
 
     const setValue = (field: keyof BookingFormValues, value: string) => {
         setValues((current) => ({ ...current, [field]: value }));
@@ -38,6 +39,7 @@ export function useBookingForm() {
             const booking = await createBooking({ eventId, slug, ...values });
 
             if (booking.success) {
+                setOnlineUrl(booking.onlineUrl);
                 setSubmitted(true);
                 posthog.capture("event_booked", { eventId, slug });
                 router.refresh(); // Reloads the booked count from the server.
@@ -53,5 +55,5 @@ export function useBookingForm() {
         }
     };
 
-    return { values, errors, isSubmitting, submitted, setValue, handleSubmit };
+    return { values, errors, isSubmitting, submitted, onlineUrl, setValue, handleSubmit };
 }

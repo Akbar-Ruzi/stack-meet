@@ -2,12 +2,13 @@
 
 import Button from "@/components/ui/Button";
 import BookingField from "@/components/events/BookingField";
+import BookingSuccess from "@/components/events/BookingSuccess";
 import { useBookingForm } from "@/hooks/useBookingForm";
 
 const BookEvent = () => {
-    const { values, errors, isSubmitting, submitted, setValue, handleSubmit } = useBookingForm();
+    const { values, errors, isSubmitting, submitted, onlineUrl, setValue, handleSubmit } = useBookingForm();
 
-    if (submitted) return <p className="mt-6 text-[15px] text-text">Thank you for signing up!</p>;
+    if (submitted) return <BookingSuccess name={values.name.trim()} onlineUrl={onlineUrl} />;
 
     return (
         <form onSubmit={handleSubmit} noValidate className="mt-6 flex flex-col gap-2.5">
