@@ -10,16 +10,15 @@ import { getBookingCount } from "@/lib/data/bookings";
 
 // The event itself: header, cover, About, agenda, organizer and the booking card.
 const EventMainContent = async ({ slug }: { slug: Promise<string> }): Promise<ReactElement> => {
-    const event = await getEventBySlug(await slug).catch((error) => {
-        console.error("Loading the event failed:", error);
-        return null;
-    });
+    // No catch: if the query fails, the error goes to error.tsx instead of showing "not found".
+    const event = await getEventBySlug(await slug);
 
     if (!event || !event.description || !event.image) return notFound();
 
-    const bookingCount = await getBookingCount(event._id).catch((error) => {
+    // null means the count is unknown, so the page never claims "0 people have booked" after a failure.
+    const bookingCount = await getBookingCount(event._id).catch((error): number | null => {
         console.error("Loading the booking count failed:", error);
-        return 0;
+        return null;
     });
 
     return (

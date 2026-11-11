@@ -12,7 +12,7 @@ const Icon = ({ children }: { children: ReactNode }) => (
 
 type BookFormProps = {
     event: Pick<EventFields, "date" | "time" | "mode" | "venue" | "location">;
-    bookingCount: number;
+    bookingCount: number | null; // null when the count couldn't be loaded
 };
 
 const BookForm = ({ event, bookingCount }: BookFormProps) => (
@@ -42,7 +42,8 @@ const BookForm = ({ event, bookingCount }: BookFormProps) => (
         <BookEvent />
 
         <p className="mt-3.5 text-sm text-muted">
-            No account needed · {bookingCount} {bookingCount === 1 ? "person has" : "people have"} booked
+            No account needed
+            {bookingCount !== null && ` · ${bookingCount} ${bookingCount === 1 ? "person has" : "people have"} booked`}
         </p>
 
         <div className="mt-5 flex flex-wrap gap-4 border-t border-line pt-4.5 font-mono text-[13px]">
