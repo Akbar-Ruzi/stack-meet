@@ -71,15 +71,29 @@ export async function getEventBySlug(slug: string): Promise<EventRecord | null> 
     return event ? toRecord(event) : null;
 }
 
-// Other events that share at least one tag with the given event.
-export async function getSimilarEvents(slug: string): Promise<EventRecord[]> {
+// Upcoming events that share a tag with the given event, soonest first. When there are fewer
+// than `limit`, the rest is filled with other upcoming events, so the section is never empty.
+export async function getSimilarEvents(
+    event: Pick<EventRecord, "_id" | "tags">,
+    limit = 3,
+): Promise<EventRecord[]> {
     await connectDB();
-    const event = await Event.findOne({ slug }).select("tags").lean<Pick<EventFields, "tags"> & { _id: unknown }>();
-    if (!event?.tags?.length) return [];
 
-    const similar = await Event.find({ _id: { $ne: event._id }, tags: { $in: event.tags } })
-        .select(PUBLIC_FIELDS)
-        .lean<EventDoc[]>();
+    const findUpcoming = (filter: FilterQuery<EventFields>, count: number) =>
+        Event.find({ date: { $gte: today() }, ...filter })
+            .select(PUBLIC_FIELDS)
+            .sort({ date: 1, time: 1 })
+            .limit(count)
+            .lean<EventDoc[]>();
 
-    return similar.map(toRecord);
+    const similar = event.tags?.length
+        ? await findUpcoming({ _id: { $ne: event._id }, tags: { $in: event.tags } }, limit)
+        : [];
+
+    const missing = limit - similar.length;
+    const fallback = missing > 0
+        ? await findUpcoming({ _id: { $nin: [event._id, ...similar.map((doc) => doc._id)] } }, missing)
+        : [];
+
+    return [...similar, ...fallback].map(toRecord);
 }

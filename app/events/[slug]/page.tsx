@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, type ReactElement } from "react";
 import { notFound } from "next/navigation";
 
 import EventHeader from "@/components/events/EventHeader";
@@ -6,14 +6,14 @@ import EventContent from "@/components/events/EventContent";
 import BookForm from "@/components/events/BookForm";
 import { getEventBySlug, getSimilarEvents, type EventRecord } from "@/lib/data/events";
 import { getBookingCount } from "@/lib/data/bookings";
-import EventCard from "@/components/events/EventCard";
+import SimilarEvents from "@/components/events/SimilarEvents";
 import {BookingProvider} from "@/context/booking-context";
 
 type EventPageProps = {
     params: Promise<{ slug: string }>;
 };
 
-const EventDetailsContent = async ({ params }: EventPageProps) => {
+const EventDetailsContent = async ({ params }: EventPageProps): Promise<ReactElement> => {
     const { slug } = await params;// unwrap the Promise
 
     const event = await getEventBySlug(slug).catch((error) => {
@@ -27,7 +27,7 @@ const EventDetailsContent = async ({ params }: EventPageProps) => {
     if (!eventId) return notFound();
 
     const [similarEvents, bookingCount] = await Promise.all([
-        getSimilarEvents(slug).catch((error): EventRecord[] => {
+        getSimilarEvents(event).catch((error): EventRecord[] => {
             console.error("Loading similar events failed:", error);
             return [];
         }),
@@ -49,17 +49,7 @@ const EventDetailsContent = async ({ params }: EventPageProps) => {
                         <BookForm event={event} bookingCount={bookingCount} />
                     </BookingProvider>
                 </div>
-                {/* Similar Events */}
-                {similarEvents.length > 0 && (
-                    <div className="flex w-full flex-col gap-4 pt-18">
-                        <h2>Similar Events</h2>
-                        <div className="events">
-                            {similarEvents.map((similarEvents) => (
-                                <EventCard key={similarEvents.title} {...similarEvents} />
-                            ))}
-                        </div>
-                    </div>
-                )}
+                <SimilarEvents events={similarEvents} />
             </div>
         </section>
     )
