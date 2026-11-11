@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import type { FilterQuery } from "mongoose";
 
 import connectDB from "@/lib/data/mongodb";
@@ -61,7 +62,8 @@ export async function getUpcomingEvents(options: UpcomingEventsOptions = {}): Pr
     return (await query.lean<EventDoc[]>()).map(toRecord);
 }
 
-export async function getEventBySlug(slug: string): Promise<EventRecord | null> {
+// Wrapped in React's cache(), so components that ask for the same slug during one request share a single query.
+export const getEventBySlug = cache(async (slug: string): Promise<EventRecord | null> => {
     const normalizedSlug = slug.trim().toLowerCase();
     if (!normalizedSlug) return null;
 
@@ -69,7 +71,7 @@ export async function getEventBySlug(slug: string): Promise<EventRecord | null> 
     const event = await Event.findOne({ slug: normalizedSlug }).select(PUBLIC_FIELDS).lean<EventDoc>();
 
     return event ? toRecord(event) : null;
-}
+});
 
 // Upcoming events that share a tag with the given event, soonest first. When there are fewer
 // than `limit`, the rest is filled with other upcoming events, so the section is never empty.
