@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/data/mongodb";
-import Event from '@/database/event.model';
+import Event, { type IEvent } from '@/database/event.model';
 import { getEventBySlug } from "@/lib/data/events";
 import { auth } from "@/auth";
+import mongoose from "mongoose";
+import { parseEventUpdates } from "@/lib/events/edit";
 
 // Define route params type for type safety
 type RouteParams = {
@@ -13,7 +15,7 @@ type RouteParams = {
 
 type AuthorizedEventResult =
   | { error: NextResponse; event?: never; slug?: never }
-  | { error?: never; event: NonNullable<Awaited<ReturnType<typeof Event.findOne>>>; slug: string };
+  | { error?: never; event: IEvent; slug: string };
 
 /**
  * GET /api/events/[slug]
@@ -146,18 +148,32 @@ export async function PATCH(
     const result = await getAuthorizedEvent(params);
     if ("error" in result) return result.error!;
 
-    const body = await request.json();
-    const updatedEvent = await Event.findOneAndUpdate(
-      { slug: result.slug },
-      { $set: body },
-      { new: true, runValidators: true }
-    );
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ message: "The request body must be valid JSON." }, { status: 400 });
+    }
+
+    const { updates, error } = parseEventUpdates(body);
+    if (!updates) return NextResponse.json({ message: error }, { status: 400 });
+
+    // Applying the changes to the loaded event and saving it runs the model's validators
+    // and its save hook, which normalizes the date and time.
+    const { event } = result;
+    event.set(updates);
+    await event.save();
 
     return NextResponse.json(
-      { message: "Event updated successfully", event: updatedEvent },
+      { message: "Event updated successfully", event },
       { status: 200 }
     );
   } catch (error) {
+    if (error instanceof mongoose.Error.ValidationError) {
+      const message = Object.values(error.errors).map((issue) => issue.message).join(" ");
+      return NextResponse.json({ message }, { status: 400 });
+    }
+
     console.error("Event update failed:", error);
     return NextResponse.json({ message: "Failed to update event" }, { status: 500 });
   }

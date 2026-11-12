@@ -9,7 +9,7 @@ export interface AgendaItem {
 // IEvent full Mongoose event document type and it is the real database document object created from that blueprint(EventFields)
 //  with additional properties like _id, createdAt, updatedAt, etc.
 
-interface IEvent extends EventFields, Document {
+export interface IEvent extends EventFields, Document {
   createdAt: Date;
   updatedAt: Date;
   createdBy: Types.ObjectId; // Reference to the User who created the event
