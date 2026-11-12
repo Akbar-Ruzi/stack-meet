@@ -27,8 +27,9 @@ const isEditableField = (key: string): key is EditableField => (EDITABLE_FIELDS 
 type ParsedUpdates = { updates: EventUpdates; error?: never } | { updates?: never; error: string };
 
 // Checks a PATCH body: it must be an object with at least one field, and every field must be editable.
+// allowEmpty is for a request that only replaces the cover image.
 // Field values are checked by the Mongoose model when the event is saved.
-export function parseEventUpdates(body: unknown): ParsedUpdates {
+export function parseEventUpdates(body: unknown, { allowEmpty = false } = {}): ParsedUpdates {
     if (typeof body !== "object" || body === null || Array.isArray(body)) {
         return { error: "The request body must be a JSON object." };
     }
@@ -38,7 +39,7 @@ export function parseEventUpdates(body: unknown): ParsedUpdates {
     if (notAllowed.length > 0) {
         return { error: `These fields can't be changed: ${notAllowed.join(", ")}.` };
     }
-    if (keys.length === 0) {
+    if (keys.length === 0 && !allowEmpty) {
         return { error: "Send at least one field to change." };
     }
 

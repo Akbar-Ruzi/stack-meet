@@ -5,6 +5,8 @@ import { getEventBySlug } from "@/lib/data/events";
 import { auth } from "@/auth";
 import mongoose from "mongoose";
 import { parseEventUpdates } from "@/lib/events/edit";
+import { readEditRequest } from "@/lib/events/edit-request";
+import { uploadCoverImage, deleteCoverImage } from "@/lib/cloudinary/cover-image";
 import { getPermissionError, type EventAction } from "@/lib/events/permissions";
 
 // Define route params type for type safety
@@ -142,21 +144,35 @@ export async function PATCH(
     const result = await getAuthorizedEvent(params, "edit");
     if ("error" in result) return result.error!;
 
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json({ message: "The request body must be valid JSON." }, { status: 400 });
+    const editRequest = await readEditRequest(request);
+    if (editRequest.error !== undefined) {
+      return NextResponse.json({ message: editRequest.error }, { status: 400 });
     }
 
-    const { updates, error } = parseEventUpdates(body);
+    const { fields, image } = editRequest;
+    const { updates, error } = parseEventUpdates(fields, { allowEmpty: image !== null });
     if (!updates) return NextResponse.json({ message: error }, { status: 400 });
 
     // Applying the changes to the loaded event and saving it runs the model's validators
     // and its save hook, which normalizes the date and time.
     const { event } = result;
+    const oldImage = event.image;
     event.set(updates);
-    await event.save();
+
+    // Validate before uploading, so a rejected edit doesn't leave an unused image in Cloudinary.
+    await event.validate();
+    const newImage = image ? await uploadCoverImage(image) : null;
+    if (newImage) event.set({ image: newImage });
+
+    try {
+      await event.save();
+    } catch (saveError) {
+      if (newImage) await deleteCoverImage(newImage).catch((e) => console.error("Unused cover cleanup failed:", e));
+      throw saveError;
+    }
+
+    // The edit is already saved, so a failure here is only logged.
+    if (newImage) await deleteCoverImage(oldImage).catch((e) => console.error("Old cover cleanup failed:", e));
 
     return NextResponse.json(
       { message: "Event updated successfully", event },
