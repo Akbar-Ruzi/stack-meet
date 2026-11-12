@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/data/mongodb";
 import Event, { type IEvent } from '@/database/event.model';
+import Booking from '@/database/booking.model';
 import { getEventBySlug } from "@/lib/data/events";
 import { auth } from "@/auth";
 import mongoose from "mongoose";
@@ -197,7 +198,14 @@ export async function DELETE(
     const result = await getAuthorizedEvent(params, "delete");
     if ("error" in result) return result.error!;
 
-    await Event.deleteOne({ slug: result.slug });
+    const { event } = result;
+
+    // The event goes first, so no new booking can be added to it while its bookings are removed.
+    await Event.deleteOne({ _id: event._id });
+    await Booking.deleteMany({ eventId: event._id });
+
+    // The event is already deleted, so a failure here is only logged.
+    await deleteCoverImage(event.image).catch((e) => console.error("Deleted event's cover cleanup failed:", e));
 
     return NextResponse.json({ message: "Event deleted successfully" }, { status: 200 });
   } catch (error) {
