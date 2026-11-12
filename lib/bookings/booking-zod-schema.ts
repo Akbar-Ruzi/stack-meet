@@ -1,11 +1,11 @@
 import { z } from "zod";
+import { EMAIL_REGEX } from "@/lib/constants";
 
 // The booking rules, shared by the form and the createBooking Server Action, so both check the same thing.
 
 const MAX_NAME_LENGTH = 50;
 const MIN_PHONE_DIGITS = 7;
 const MAX_PHONE_DIGITS = 15;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^\+?[\d\s().-]+$/;
 
 const isValidPhone = (phone: string) => {

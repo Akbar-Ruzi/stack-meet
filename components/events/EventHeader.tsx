@@ -1,9 +1,9 @@
 import Link from "next/link";
 import FormatBadge from "@/components/ui/FormatBadge";
 import { formatFullDate } from "@/lib/events/display";
+import { PILL_CLASSES } from "@/lib/constants";
 import type { EventFields } from "@/types/event.types";
 
-const PILL_CLASSES = "rounded-full border border-border px-3 py-2";
 // On phones the date and time share the first row equally, and the badge and tags start the next one.
 const WHEN_PILL_CLASSES = `${PILL_CLASSES} max-[641px]:flex-[1_1_calc(50%-5px)] max-[641px]:whitespace-nowrap max-[641px]:px-1.5 max-[641px]:text-center max-[641px]:text-xs`;
 

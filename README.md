@@ -107,6 +107,7 @@ Each file has one job: pages put sections together, components render UI, and lo
 - **Custom hooks (`useX`) hold client-side state and behavior**, like form state or a toggle, so components stay readable.
 - **Plain functions in `lib/` hold logic that isn't React:** formatting, filtering, validation and database access.
 - **Colocate first, share later.** Keep code next to where it's used, and move it to a shared folder only when a second place needs it.
+- **Constants used in more than one file go in `lib/constants.ts`**, including Tailwind class strings. A constant used by one file stays in that file.
 - **Server Components by default.** Add `"use client"` only where interactivity is needed, as low in the tree as possible.
 - **Fetch data on the server**, in Server Components or server functions, not in `useEffect`. A Server Component calls the data functions directly instead of fetching the app's own `/api` routes.
 - **Keep a data access layer.** Database reads and auth checks live in `lib/data/`, marked `import "server-only"`, so they can't leak into client code.

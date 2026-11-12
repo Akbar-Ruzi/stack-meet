@@ -1,11 +1,10 @@
 import Image from "next/image";
 import FormatBadge from "@/components/ui/FormatBadge";
 import { buildEventPagePreview } from "@/lib/events/preview";
+import { AGENDA_BAR_COLORS, PILL_CLASSES } from "@/lib/constants";
 import type { EventFormValues } from "@/types/event.types";
 
-const PILL_CLASSES = "rounded-full border border-border px-3 py-2";
 const SECTION_HEADING_CLASSES = "text-[26px] tracking-[-0.01em]";
-const AGENDA_BAR_COLORS = ["bg-accent", "bg-format-online", "bg-format-in-person", "bg-format-hybrid", "bg-[#A78BFA]"];
 
 type EventPagePreviewProps = {
     titleId: string;

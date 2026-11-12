@@ -1,7 +1,6 @@
 import type { AgendaItem } from "@/database/event.model";
 import { formatDayAndDate } from "@/lib/events/display";
-
-const BAR_COLORS = ["bg-accent", "bg-format-online", "bg-format-in-person", "bg-format-hybrid", "bg-[#A78BFA]"];
+import { AGENDA_BAR_COLORS } from "@/lib/constants";
 
 type EventAgendaProps = {
     agendaItems: AgendaItem[];
@@ -16,7 +15,7 @@ const EventAgenda = ({ agendaItems, date }: EventAgendaProps) => (
             {agendaItems.map(({ start, title }, index) => (
                 <li key={`${start}-${title}-${index}`} className="flex items-center gap-5">
                     <time className="w-16 flex-none text-right text-[22px] font-bold leading-[1.1] tracking-[-0.01em]">{start}</time>
-                    <span aria-hidden="true" className={`h-11 w-1 flex-none rounded-lg ${BAR_COLORS[index % BAR_COLORS.length]}`} />
+                    <span aria-hidden="true" className={`h-11 w-1 flex-none rounded-lg ${AGENDA_BAR_COLORS[index % AGENDA_BAR_COLORS.length]}`} />
                     <div className="min-w-0 text-lg font-medium leading-[1.3]">{title}</div>
                 </li>
             ))}

@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 
 import connectDB from "@/lib/data/mongodb";
 import User from "@/database/user.model";
+import { EMAIL_REGEX } from "@/lib/constants";
 
 type SignupBody = {
     name?: string;
@@ -10,8 +11,6 @@ type SignupBody = {
     password?: string;
     phone?: string;
 };
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // 11000 is MongoDB's duplicate key error, from the unique index on email.
 const isDuplicateKeyError = (error: unknown) =>
