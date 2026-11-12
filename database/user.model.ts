@@ -11,6 +11,7 @@ export interface UserFields {
 }
 
 export interface IUser extends UserFields, Document {
+    eventCount: number; // Events this user has created, kept in step so the limit can be checked atomically
     createdAt: Date;
     updatedAt: Date;
 }
@@ -44,7 +45,12 @@ const UserSchema = new Schema<IUser>(
             type: String,
             enum: ["user", "admin"],
             default: "user",
-        }
+        },
+        eventCount: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
     },
     { timestamps: true }
 );

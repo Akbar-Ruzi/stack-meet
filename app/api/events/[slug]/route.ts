@@ -9,6 +9,7 @@ import { parseEventUpdates } from "@/lib/events/edit";
 import { readEditRequest } from "@/lib/events/edit-request";
 import { uploadCoverImage, deleteCoverImage } from "@/lib/cloudinary/cover-image";
 import { getPermissionError, type EventAction } from "@/lib/events/permissions";
+import { releaseEventSlot } from "@/lib/data/event-slots";
 
 // Define route params type for type safety
 type RouteParams = {
@@ -201,8 +202,12 @@ export async function DELETE(
     const { event } = result;
 
     // The event goes first, so no new booking can be added to it while its bookings are removed.
-    await Event.deleteOne({ _id: event._id });
+    const { deletedCount } = await Event.deleteOne({ _id: event._id });
     await Booking.deleteMany({ eventId: event._id });
+
+    // Only the request that actually deleted the event frees its owner's slot, so two deletes at once can't free two.
+    // Older events may have no owner.
+    if (deletedCount === 1 && event.createdBy) await releaseEventSlot(event.createdBy.toString());
 
     // The event is already deleted, so a failure here is only logged.
     await deleteCoverImage(event.image).catch((e) => console.error("Deleted event's cover cleanup failed:", e));

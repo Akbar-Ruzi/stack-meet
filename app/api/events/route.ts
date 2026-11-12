@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import connectDB from "@/lib/data/mongodb";
 import Event from '@/database/event.model';
 import { getUpcomingEvents } from "@/lib/data/events";
+import { claimEventSlot, releaseEventSlot } from "@/lib/data/event-slots";
 import { MAX_EVENTS_PER_USER } from "@/lib/constants";
 
 type CloudinaryUploadResult = {
@@ -14,6 +15,7 @@ type CloudinaryUploadResult = {
 
 
 export async function POST(req: NextRequest) {
+	let slotUserId: string | null = null; // Set once a slot is claimed, so a failure below can give it back
 	try {
 		const session = await auth();
 		if (!session?.user) {
@@ -28,17 +30,6 @@ export async function POST(req: NextRequest) {
 
 		await connectDB();
 
-		if (userRole !== "admin") {
-			const existingCount = await Event.countDocuments({ createdBy: userId });
-			if (existingCount >= MAX_EVENTS_PER_USER) {
-				return NextResponse.json(
-					{ message: `You have reached the maximum limit of ${MAX_EVENTS_PER_USER} events.` },
-					{ status: 403 }
-				);
-			}
-
-		}
-
 		const formData = await req.formData();
 
 		// Validate & read image
@@ -46,6 +37,16 @@ export async function POST(req: NextRequest) {
 		if (!(imageValue instanceof File)) {
 			return NextResponse.json({ message: "Image file is required" }, { status: 400 });
 		}
+
+		// Claimed after the form checks above, so a bad request doesn't use up a slot.
+		const hasSlot = await claimEventSlot(userId, { exempt: userRole === "admin" });
+		if (!hasSlot) {
+			return NextResponse.json(
+				{ message: `You have reached the maximum limit of ${MAX_EVENTS_PER_USER} events.` },
+				{ status: 403 }
+			);
+		}
+		slotUserId = userId;
 
 		// Make string-only fields (exclude image, we handle it separately, because it's a File, and databases cannot store files directly, 
 		// only their URLs, and we will get the URL after uploading to Cloudinary)
@@ -86,6 +87,7 @@ export async function POST(req: NextRequest) {
 			{ status: 201 });
 	} catch (e) {
 		console.error('Event creation failed:', e);
+		if (slotUserId) await releaseEventSlot(slotUserId).catch((error) => console.error("Event slot release failed:", error));
 		if (e instanceof mongoose.Error.ValidationError) {
 			const [firstError] = Object.values(e.errors);
 			return NextResponse.json({ message: firstError.message }, { status: 400 });
