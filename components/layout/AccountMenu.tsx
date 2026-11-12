@@ -42,10 +42,10 @@ const AccountMenu = ({ user }: { user: AccountUser }) => {
                         <div className="wrap-break-word font-bold">{user.name}</div>
                         <div className="wrap-break-word text-[13px] text-muted">{user.email}</div>
                     </div>
-                    <Link role="menuitem" href="/me?tab=hosting" onClick={close} className={`${ITEM_CLASSES} text-text`}>
+                    <Link role="menuitem" href="/my-events?tab=hosting" onClick={close} className={`${ITEM_CLASSES} text-text`}>
                         Events I&apos;m hosting
                     </Link>
-                    <Link role="menuitem" href="/me?tab=booked" onClick={close} className={`${ITEM_CLASSES} text-text`}>
+                    <Link role="menuitem" href="/my-events?tab=booked" onClick={close} className={`${ITEM_CLASSES} text-text`}>
                         My bookings
                     </Link>
                     <button

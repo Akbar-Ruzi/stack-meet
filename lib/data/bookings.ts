@@ -11,6 +11,15 @@ export async function getBookingCount(eventId: string): Promise<number> {
     return Booking.countDocuments({ eventId });
 }
 
+// How many upcoming events this signed-in user has a spot at. Guest bookings made with
+// the same email don't count, because emails aren't verified yet.
+export async function countUpcomingBookingsByUser(userId: string): Promise<number> {
+    await connectDB();
+    const eventIds = await Booking.distinct("eventId", { userId, hiddenByUser: { $ne: true } });
+    if (eventIds.length === 0) return 0;
+    return Event.countDocuments({ _id: { $in: eventIds }, date: { $gte: today() } });
+}
+
 // How many upcoming events this email has booked, not counting `exceptEventId`.
 // Past events don't count, and a canceled booking is deleted, so it no longer counts either.
 export async function countUpcomingBookingsByEmail(email: string, exceptEventId: string): Promise<number> {

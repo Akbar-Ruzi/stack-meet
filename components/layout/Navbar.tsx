@@ -7,7 +7,7 @@ import { useNavbarLock } from "@/context/navbar-lock-context";
 const getActiveHref = (pathname: string) => {
     if (pathname.startsWith("/auth")) return "/auth/sign-in";
     if (pathname.startsWith("/calendar")) return "/calendar";
-    if (pathname.startsWith("/me")) return "/me";
+    if (pathname.startsWith("/my-events")) return "/my-events";
     if (pathname === "/events/create" || pathname.endsWith("/edit")) return null;
     if (pathname === "/" || pathname.startsWith("/events")) return "/";
     return null;
@@ -20,7 +20,7 @@ const Navbar = ({ user }: { user: AccountUser | null }) => {
     const links = [
         { href: "/", label: "Events" },
         { href: "/calendar", label: "Calendar" },
-        user ? { href: "/me", label: "My events" } : { href: "/auth/sign-in", label: "Sign in" },
+        user ? { href: "/my-events", label: "My events" } : { href: "/auth/sign-in", label: "Sign in" },
     ];
 
     // Stops every header link and button while a form is submitting.

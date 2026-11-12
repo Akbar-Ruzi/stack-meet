@@ -76,6 +76,12 @@ export const getEventBySlug = cache(async (slug: string): Promise<EventRecord | 
     return event ? toRecord(event) : null;
 });
 
+// How many events this user created, upcoming and past.
+export async function countEventsByUser(userId: string): Promise<number> {
+    await connectDB();
+    return Event.countDocuments({ createdBy: userId });
+}
+
 // The calendar's search matches the title, a tag, the city or the format name ("online", "hybrid"…).
 function buildCalendarFilter({ q, formats, topics, city }: CalendarSearch): FilterQuery<EventFields> {
     const conditions: FilterQuery<EventFields>[] = [{ date: { $gte: today() } }];
