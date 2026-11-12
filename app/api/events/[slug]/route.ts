@@ -5,6 +5,7 @@ import { getEventBySlug } from "@/lib/data/events";
 import { auth } from "@/auth";
 import mongoose from "mongoose";
 import { parseEventUpdates } from "@/lib/events/edit";
+import { getPermissionError, type EventAction } from "@/lib/events/permissions";
 
 // Define route params type for type safety
 type RouteParams = {
@@ -104,7 +105,7 @@ export async function GET(
   }
 }
 
-async function getAuthorizedEvent(params: Promise<{ slug: string }>): Promise<AuthorizedEventResult> {
+async function getAuthorizedEvent(params: Promise<{ slug: string }>, action: EventAction): Promise<AuthorizedEventResult> {
   const session = await auth();
   if (!session?.user) {
     return { error: NextResponse.json({ message: "Unauthorized" }, { status: 401 }) };
@@ -125,16 +126,9 @@ async function getAuthorizedEvent(params: Promise<{ slug: string }>): Promise<Au
     };
   }
 
-  const isAdmin = session.user.role === "admin";
-  const isOwner = event.createdBy.toString() === session.user.id;
-
-  if (!isAdmin && !isOwner) {
-    return {
-      error: NextResponse.json(
-        { message: "You are not allowed to modify this event." },
-        { status: 403 }
-      )
-    };
+  const permissionError = getPermissionError({ event, user: session.user, action });
+  if (permissionError) {
+    return { error: NextResponse.json({ message: permissionError }, { status: 403 }) };
   }
 
   return {event, slug: normalizedSlug };
@@ -145,7 +139,7 @@ export async function PATCH(
   { params }: RouteParams
 ): Promise<NextResponse> {
   try {
-    const result = await getAuthorizedEvent(params);
+    const result = await getAuthorizedEvent(params, "edit");
     if ("error" in result) return result.error!;
 
     let body: unknown;
@@ -184,7 +178,7 @@ export async function DELETE(
   { params }: RouteParams
 ): Promise<NextResponse> {
   try {
-    const result = await getAuthorizedEvent(params);
+    const result = await getAuthorizedEvent(params, "delete");
     if ("error" in result) return result.error!;
 
     await Event.deleteOne({ slug: result.slug });
