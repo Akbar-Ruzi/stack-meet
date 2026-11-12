@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
 		if (errors?.code === 11000) {
 			return NextResponse.json(
 				{
-					message: 'An event with this title already exists.',
+					message: 'Please choose a different title.',
 					code: 'DUPLICATE_EVENT_TITLE',
 				},
 				{ status: 409 }
