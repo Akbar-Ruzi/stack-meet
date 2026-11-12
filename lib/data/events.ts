@@ -27,7 +27,8 @@ const toRecord = (doc: EventDoc): EventRecord => ({
     createdBy: doc.createdBy?.toString() ?? "",
 });
 
-const today = () => new Date().toISOString().slice(0, 10);
+// Today as "YYYY-MM-DD", the format events store their date in. Events on or after it are upcoming.
+export const today = () => new Date().toISOString().slice(0, 10);
 
 // Same cleanup as the home search: trimmed, lowercase, without a leading "#".
 const clean = (value?: string) => value?.trim().toLowerCase().replace(/^#/, "") ?? "";

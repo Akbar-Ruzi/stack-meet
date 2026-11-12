@@ -4,10 +4,12 @@ import connectDB from "@/lib/data/mongodb";
 import Booking from "@/database/booking.model";
 import Event from "@/database/event.model";
 import { bookingSchema } from "@/lib/bookings/booking-zod-schema";
-import { getBookingCount } from "@/lib/data/bookings";
+import { countUpcomingBookingsByEmail, getBookingCount } from "@/lib/data/bookings";
 
 // Bookings one event can take.
 const MAX_BOOKINGS_PER_EVENT = 200;
+// Different upcoming events one email can book at once.
+const MAX_UPCOMING_BOOKINGS_PER_EMAIL = 3;
 
 type CreateBookingParams = {
     eventId: string;
@@ -37,6 +39,14 @@ export const createBooking = async ({eventId, email, name, phone}: CreateBooking
         // A plain count, so parallel bookings right at the limit can go slightly over, which is fine for a usage cap.
         if (await getBookingCount(eventId) >= MAX_BOOKINGS_PER_EVENT) {
             return {success: false, message: 'This event is fully booked.'} satisfies CreateBookingResult;
+        }
+
+        // This event is left out of the count, so booking it twice still gets the duplicate message below.
+        if (await countUpcomingBookingsByEmail(normalizedEmail, eventId) >= MAX_UPCOMING_BOOKINGS_PER_EMAIL) {
+            return {
+                success: false,
+                message: `One email can book up to ${MAX_UPCOMING_BOOKINGS_PER_EMAIL} upcoming events.`,
+            } satisfies CreateBookingResult;
         }
 
         const session = await auth();
