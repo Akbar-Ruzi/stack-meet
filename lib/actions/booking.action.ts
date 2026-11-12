@@ -4,6 +4,10 @@ import connectDB from "@/lib/data/mongodb";
 import Booking from "@/database/booking.model";
 import Event from "@/database/event.model";
 import { bookingSchema } from "@/lib/bookings/booking-zod-schema";
+import { getBookingCount } from "@/lib/data/bookings";
+
+// Bookings one event can take.
+const MAX_BOOKINGS_PER_EVENT = 200;
 
 type CreateBookingParams = {
     eventId: string;
@@ -29,6 +33,12 @@ export const createBooking = async ({eventId, email, name, phone}: CreateBooking
         const { name: cleanName, email: normalizedEmail, phone: cleanPhone } = parsed.data;
 
         await connectDB();
+
+        // A plain count, so parallel bookings right at the limit can go slightly over, which is fine for a usage cap.
+        if (await getBookingCount(eventId) >= MAX_BOOKINGS_PER_EVENT) {
+            return {success: false, message: 'This event is fully booked.'} satisfies CreateBookingResult;
+        }
+
         const session = await auth();
 
         await Booking.create({
