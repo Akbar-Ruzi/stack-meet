@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getCoverImageError } from "@/lib/events/cover-image-rules";
 
 const required = (message: string) => z.string().trim().min(1, message);
 
@@ -6,7 +7,14 @@ const basicsSchema = z.object({
     title: required("Add a title to continue.").max(100, "Keep the title under 100 characters."),
     description: required("Add a short description to continue.").max(1000, "Keep the description under 1000 characters."),
     overview: required("Add an overview to continue.").max(500, "Keep the overview under 500 characters."),
-    image: z.custom<FileList>((value) => value instanceof FileList && value.length > 0, "Add a cover image to continue."),
+    image: z
+        .custom<FileList>((value) => value instanceof FileList && value.length > 0, "Add a cover image to continue.")
+        .superRefine((files, ctx) => {
+            // Zod can still run this after the check above fails, so a missing file is skipped here.
+            const file = files?.[0];
+            const error = file ? getCoverImageError(file) : null;
+            if (error) ctx.addIssue({ code: "custom", message: error });
+        }),
 });
 
 const whenWhereSchema = z

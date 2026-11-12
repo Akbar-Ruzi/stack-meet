@@ -7,7 +7,7 @@ import { auth } from "@/auth";
 import mongoose from "mongoose";
 import { parseEventUpdates } from "@/lib/events/edit";
 import { readEditRequest } from "@/lib/events/edit-request";
-import { uploadCoverImage, deleteCoverImage } from "@/lib/cloudinary/cover-image";
+import { uploadCoverImage, deleteCoverImage, checkCoverImage } from "@/lib/cloudinary/cover-image";
 import { getPermissionError, type EventAction } from "@/lib/events/permissions";
 import { releaseEventSlot } from "@/lib/data/event-slots";
 
@@ -152,6 +152,9 @@ export async function PATCH(
     }
 
     const { fields, image } = editRequest;
+    const imageError = image ? await checkCoverImage(image) : null;
+    if (imageError) return NextResponse.json({ message: imageError }, { status: 400 });
+
     const { updates, error } = parseEventUpdates(fields, { allowEmpty: image !== null });
     if (!updates) return NextResponse.json({ message: error }, { status: 400 });
 

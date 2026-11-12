@@ -8,6 +8,7 @@ import Event from '@/database/event.model';
 import { getUpcomingEvents } from "@/lib/data/events";
 import { claimEventSlot, releaseEventSlot } from "@/lib/data/event-slots";
 import { MAX_EVENTS_PER_USER } from "@/lib/constants";
+import { checkCoverImage } from "@/lib/cloudinary/cover-image";
 
 // Events the whole site can hold, past ones included.
 const MAX_TOTAL_EVENTS = 100;
@@ -40,6 +41,8 @@ export async function POST(req: NextRequest) {
 		if (!(imageValue instanceof File)) {
 			return NextResponse.json({ message: "Image file is required" }, { status: 400 });
 		}
+		const imageError = await checkCoverImage(imageValue);
+		if (imageError) return NextResponse.json({ message: imageError }, { status: 400 });
 
 		// Applies to admins too. A plain count, so parallel requests right at the limit can go
 		// slightly over, which is fine for a cap on how much the database stores.

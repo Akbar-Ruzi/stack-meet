@@ -1,5 +1,6 @@
 import { useWatch, type UseFormReturn } from "react-hook-form";
 import { FieldError } from "@/components/ui/Input";
+import { COVER_IMAGE_ACCEPT } from "@/lib/events/cover-image-rules";
 import type { EventFormValues } from "@/types/event.types";
 
 const CoverImageField = ({ form }: { form: UseFormReturn<EventFormValues> }) => {
@@ -26,7 +27,7 @@ const CoverImageField = ({ form }: { form: UseFormReturn<EventFormValues> }) => 
                 <input
                     id="event-image"
                     type="file"
-                    accept="image/*"
+                    accept={COVER_IMAGE_ACCEPT}
                     aria-invalid={error ? true : undefined}
                     className="absolute inset-0 cursor-pointer opacity-0"
                     {...form.register("image")}
