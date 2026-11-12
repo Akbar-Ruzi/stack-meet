@@ -9,7 +9,7 @@ type CreateBookingParams = {
     eventId: string;
     slug: string;
     email: string;
-    name?: string; // Optional only until the Step 5 booking form sends it
+    name?: string;
     phone?: string;
 }
 
