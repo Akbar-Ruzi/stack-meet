@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import connectDB from "@/lib/data/mongodb";
 import Event from '@/database/event.model';
 import { getUpcomingEvents } from "@/lib/data/events";
+import { MAX_EVENTS_PER_USER } from "@/lib/constants";
 
 type CloudinaryUploadResult = {
 	secure_url: string;
@@ -29,9 +30,9 @@ export async function POST(req: NextRequest) {
 
 		if (userRole !== "admin") {
 			const existingCount = await Event.countDocuments({ createdBy: userId });
-			if (existingCount >= 2) {
+			if (existingCount >= MAX_EVENTS_PER_USER) {
 				return NextResponse.json(
-					{ message: "You have reached the maximum limit of 2 events." },
+					{ message: `You have reached the maximum limit of ${MAX_EVENTS_PER_USER} events.` },
 					{ status: 403 }
 				);
 			}
