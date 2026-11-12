@@ -9,6 +9,9 @@ import { getUpcomingEvents } from "@/lib/data/events";
 import { claimEventSlot, releaseEventSlot } from "@/lib/data/event-slots";
 import { MAX_EVENTS_PER_USER } from "@/lib/constants";
 
+// Events the whole site can hold, past ones included.
+const MAX_TOTAL_EVENTS = 100;
+
 type CloudinaryUploadResult = {
 	secure_url: string;
 };
@@ -36,6 +39,15 @@ export async function POST(req: NextRequest) {
 		const imageValue = formData.get("image");
 		if (!(imageValue instanceof File)) {
 			return NextResponse.json({ message: "Image file is required" }, { status: 400 });
+		}
+
+		// Applies to admins too. A plain count, so parallel requests right at the limit can go
+		// slightly over, which is fine for a cap on how much the database stores.
+		if (await Event.countDocuments() >= MAX_TOTAL_EVENTS) {
+			return NextResponse.json(
+				{ message: "StackMeet isn't accepting new events right now. Please try again later." },
+				{ status: 403 }
+			);
 		}
 
 		// Claimed after the form checks above, so a bad request doesn't use up a slot.
