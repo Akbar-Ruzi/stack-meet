@@ -7,11 +7,14 @@ import { parseCalendarQuery, type CalendarSearchParams } from "@/lib/url/calenda
 
 export default function CalendarPage({ searchParams }: { searchParams: Promise<CalendarSearchParams> }) {
     const search = searchParams.then(parseCalendarQuery);
-    // One query, shared by the search status row and the timeline.
-    const events = search.then(getCalendarEvents).catch((error): EventRecord[] => {
-        console.error("Loading the calendar events failed:", error);
-        return [];
-    });
+    // One query, shared by the search status row and the timeline. The catch covers only the query,
+    // because during the build Next.js rejects searchParams on purpose, and that isn't a failure.
+    const events = search.then((query) =>
+        getCalendarEvents(query).catch((error): EventRecord[] => {
+            console.error("Loading the calendar events failed:", error);
+            return [];
+        }),
+    );
 
     return (
         <div data-full-width>
