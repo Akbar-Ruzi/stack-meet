@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { v2 as cloudinary } from 'cloudinary';
 import mongoose from "mongoose";
 import { auth } from "@/auth";
 
@@ -8,15 +7,10 @@ import Event from '@/database/event.model';
 import { getUpcomingEvents } from "@/lib/data/events";
 import { claimEventSlot, releaseEventSlot } from "@/lib/data/event-slots";
 import { MAX_EVENTS_PER_USER } from "@/lib/constants";
-import { checkCoverImage } from "@/lib/cloudinary/cover-image";
+import { checkCoverImage, deleteCoverImage, uploadCoverImage } from "@/lib/cloudinary/cover-image";
 
 // Events the whole site can hold, past ones included.
 const MAX_TOTAL_EVENTS = 100;
-
-type CloudinaryUploadResult = {
-	secure_url: string;
-};
-
 
 export async function POST(req: NextRequest) {
 	let slotUserId: string | null = null; // Set once a slot is claimed, so a failure below can give it back
@@ -44,6 +38,22 @@ export async function POST(req: NextRequest) {
 		const imageError = await checkCoverImage(imageValue);
 		if (imageError) return NextResponse.json({ message: imageError }, { status: 400 });
 
+		// Text fields only. The image is a File, and the event stores its Cloudinary URL instead.
+		const eventFields: Record<string, string> = {};
+		for (const [k, v] of formData.entries()) {
+			if (k !== "image" && typeof v === "string") eventFields[k] = v;
+		}
+
+		// Built and checked before anything is uploaded, so a rejected event leaves no image in Cloudinary.
+		// The image URL doesn't exist yet, so that one rule is skipped until after the upload.
+		const event = new Event({
+			...eventFields,
+			tags: JSON.parse((formData.get("tags") as string | null) ?? "[]"),
+			agenda: JSON.parse((formData.get("agenda") as string | null) ?? "[]"),
+			createdBy: userId,
+		});
+		await event.validate({ pathsToSkip: ["image"] });
+
 		// Applies to admins too. A plain count, so parallel requests right at the limit can go
 		// slightly over, which is fine for a cap on how much the database stores.
 		if (await Event.countDocuments() >= MAX_TOTAL_EVENTS) {
@@ -63,42 +73,20 @@ export async function POST(req: NextRequest) {
 		}
 		slotUserId = userId;
 
-		// Make string-only fields (exclude image, we handle it separately, because it's a File, and databases cannot store files directly, 
-		// only their URLs, and we will get the URL after uploading to Cloudinary)
-		const eventFields: Record<string, string> = {};
-		for (const [k, v] of formData.entries()) {
-			if (k === "image") continue; // If it's the image field, skip it for now
-			if (typeof v === "string") eventFields[k] = v;
+		const image = await uploadCoverImage(imageValue);
+		event.set({ image });
+
+		// Some failures only show up when saving, such as a title another event already uses,
+		// so the image uploaded above is deleted if the save fails.
+		try {
+			await event.save();
+		} catch (saveError) {
+			await deleteCoverImage(image).catch((error) => console.error("Unused cover cleanup failed:", error));
+			throw saveError;
 		}
 
-
-		// Upload image to Cloudinary to get a URL we can store in the database
-		const arrayBuffer = await imageValue.arrayBuffer();
-		const buffer = Buffer.from(arrayBuffer);
-
-		const uploadResult = await new Promise<CloudinaryUploadResult>((resolve, reject) => {
-			cloudinary.uploader
-				.upload_stream({ resource_type: "image", folder: "StackMeet" }, (error, result) => {
-					if (error) return reject(error);
-					if (!result?.secure_url) return reject(new Error("Cloudinary upload failed"));
-					resolve({ secure_url: result.secure_url });
-				})
-				.end(buffer);
-		});
-
-		// Build final payload with correct types
-		const eventPayload = {
-			...eventFields,
-			image: uploadResult.secure_url,
-			tags: JSON.parse((formData.get("tags") as string | null) ?? "[]"),
-			agenda: JSON.parse((formData.get("agenda") as string | null) ?? "[]"),
-			createdBy: userId,
-		};
-
-		const createdEvent = await Event.create(eventPayload);
-
 		return NextResponse.json(
-			{ message: 'Event created successfully', event: createdEvent },
+			{ message: 'Event created successfully', event },
 			{ status: 201 });
 	} catch (e) {
 		console.error('Event creation failed:', e);
