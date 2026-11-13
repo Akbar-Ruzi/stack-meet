@@ -9,6 +9,7 @@ import type { EventFields } from "@/types/event.types";
 import type { EventMode, EventSearch } from "@/lib/events/search";
 import type { CalendarSearch } from "@/lib/events/calendar";
 import { FORMAT_LABELS } from "@/lib/events/display";
+import { getPermissionError } from "@/lib/events/permissions";
 
 // An event as pages receive it: plain data with string ids, safe to pass to client components.
 export type EventRecord = EventFields & { _id: string; createdBy: string };
@@ -75,6 +76,14 @@ export const getEventBySlug = cache(async (slug: string): Promise<EventRecord | 
 
     return event ? toRecord(event) : null;
 });
+
+// The event, only if this user may edit it: the owner, and only while it's upcoming. Otherwise null.
+export async function getEditableEvent(slug: string, user: { id?: string; role?: string }): Promise<EventRecord | null> {
+    const event = await getEventBySlug(slug);
+    if (!event) return null;
+
+    return getPermissionError({ event, user, action: "edit", today: today() }) ? null : event;
+}
 
 // How many events this user created, upcoming and past.
 export async function countEventsByUser(userId: string): Promise<number> {

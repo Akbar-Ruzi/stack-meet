@@ -15,5 +15,5 @@ export default auth((req) => {
 });
 
 export const config = {
-    matcher: ["/events/create", "/my-events"],
+    matcher: ["/events/create", "/events/:slug/edit", "/my-events"],
 };
