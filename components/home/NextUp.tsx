@@ -5,7 +5,7 @@ import { getUpcomingEvents, type EventRecord } from "@/lib/data/events";
 import type { HomeQuery } from "@/lib/url/home-query";
 
 // The home page shows only the next few events. The calendar lists them all.
-const NEXT_UP_LIMIT = 9;
+const NEXT_UP_LIMIT = 21;
 
 const NextUp = async ({ query }: { query: Promise<HomeQuery> }) => {
     const { q, where, mode } = await query;
