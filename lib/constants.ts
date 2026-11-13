@@ -15,3 +15,6 @@ export const PILL_CLASSES = "rounded-full border border-border px-3 py-2";
 
 // Agenda rows cycle through these colors, in order.
 export const AGENDA_BAR_COLORS = ["bg-accent", "bg-format-online", "bg-format-in-person", "bg-format-hybrid", "bg-[#A78BFA]"];
+
+// The action buttons on a My events row. On phones they fill a full-width row under the card.
+export const ACTIONS_ROW = "flex flex-wrap gap-2 max-[640px]:flex-[1_1_100%] max-[640px]:*:flex-1 max-[640px]:*:justify-center";

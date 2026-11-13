@@ -3,6 +3,7 @@ import DateTile from "@/components/ui/DateTile";
 import FormatBadge from "@/components/ui/FormatBadge";
 import CancelSpotButton from "@/components/my-events/CancelSpotButton";
 import { formatMonthDay, getEventPlace } from "@/lib/events/display";
+import { ACTIONS_ROW } from "@/lib/constants";
 import type { BookedEvent } from "@/lib/data/my-events";
 
 const CheckIcon = () => (
@@ -32,7 +33,7 @@ const BookedEventRow = ({ booking }: { booking: BookedEvent }) => {
                     Spot reserved · booked {formatMonthDay(bookedOn)}
                 </div>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className={ACTIONS_ROW}>
                 <Link href={`/events/${slug}`} className="inline-flex min-h-11 items-center rounded-[10px] border border-border px-3.5 text-sm text-text">
                     View event
                 </Link>

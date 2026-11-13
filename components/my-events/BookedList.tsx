@@ -1,8 +1,10 @@
 import BookedEventRow from "@/components/my-events/BookedEventRow";
+import EmptyListState from "@/components/my-events/EmptyListState";
 import type { BookedEvent } from "@/lib/data/my-events";
 
 const BookedList = ({ bookings }: { bookings: BookedEvent[] }) => (
     <section aria-label="My bookings" className="flex flex-col gap-3.5">
+        {bookings.length === 0 && <EmptyListState message="No upcoming bookings." href="/#events" linkLabel="Find an event" />}
         {bookings.map((booking) => (
             <BookedEventRow key={booking.bookingId} booking={booking} />
         ))}

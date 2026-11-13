@@ -4,6 +4,7 @@ import FormatBadge from "@/components/ui/FormatBadge";
 import { buttonClasses } from "@/components/ui/Button";
 import DeleteEventButton from "@/components/my-events/DeleteEventButton";
 import { getEventPlace } from "@/lib/events/display";
+import { ACTIONS_ROW } from "@/lib/constants";
 import type { HostedEvent } from "@/lib/data/my-events";
 
 const EditIcon = () => (
@@ -33,7 +34,7 @@ const HostedEventRow = ({ event }: { event: HostedEvent }) => {
                     <span className={isUpcoming ? "text-[#9BE15D]" : "text-muted"}>{isUpcoming ? "upcoming" : "ended"}</span>
                 </div>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className={ACTIONS_ROW}>
                 <Link href={`/events/${slug}`} className="inline-flex min-h-11 items-center rounded-[10px] border border-border px-3.5 text-sm text-text">
                     View
                 </Link>
