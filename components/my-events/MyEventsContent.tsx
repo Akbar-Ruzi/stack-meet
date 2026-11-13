@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import MyEventsTabs from "@/components/my-events/MyEventsTabs";
+import HostingList from "@/components/my-events/HostingList";
 import { countEventsByUser } from "@/lib/data/events";
 import { countUpcomingBookingsByUser } from "@/lib/data/bookings";
+import { getHostedEvents } from "@/lib/data/my-events";
 import { parseMyEventsTab, type MyEventsSearchParams } from "@/lib/url/my-events-query";
 
 // A count that fails to load is left out, so a failure never reads as "0".
@@ -20,9 +22,11 @@ const MyEventsContent = async ({ searchParams }: { searchParams: Promise<MyEvent
     const userId = session?.user?.id;
     if (!userId) redirect(`/auth/sign-in?next=${encodeURIComponent(`/my-events?tab=${tab}`)}`);
 
-    const [hostingCount, bookedCount] = await Promise.all([
+    // Only the open tab's list is loaded.
+    const [hostingCount, bookedCount, hostedEvents] = await Promise.all([
         orNull(countEventsByUser(userId)),
         orNull(countUpcomingBookingsByUser(userId)),
+        tab === "hosting" ? getHostedEvents(userId) : null,
     ]);
 
     return (
@@ -34,7 +38,9 @@ const MyEventsContent = async ({ searchParams }: { searchParams: Promise<MyEvent
                     { key: "booked", label: "Booked", count: bookedCount },
                 ]}
             />
-            <div role="tabpanel" id={`my-events-panel-${tab}`} aria-labelledby={`my-events-tab-${tab}`} />
+            <div role="tabpanel" id={`my-events-panel-${tab}`} aria-labelledby={`my-events-tab-${tab}`}>
+                {hostedEvents && <HostingList events={hostedEvents} />}
+            </div>
         </>
     );
 };
