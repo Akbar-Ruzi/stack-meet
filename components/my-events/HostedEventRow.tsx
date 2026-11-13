@@ -2,6 +2,7 @@ import Link from "next/link";
 import DateTile from "@/components/ui/DateTile";
 import FormatBadge from "@/components/ui/FormatBadge";
 import { buttonClasses } from "@/components/ui/Button";
+import DeleteEventButton from "@/components/my-events/DeleteEventButton";
 import { getEventPlace } from "@/lib/events/display";
 import type { HostedEvent } from "@/lib/data/my-events";
 
@@ -42,9 +43,7 @@ const HostedEventRow = ({ event }: { event: HostedEvent }) => {
                         Edit
                     </Link>
                 )}
-                <button type="button" aria-label={`Delete ${title}`} className={buttonClasses({ variant: "danger-outline", size: "md" })}>
-                    Delete
-                </button>
+                <DeleteEventButton slug={slug} title={title} bookedCount={bookedCount} />
             </div>
         </article>
     );
