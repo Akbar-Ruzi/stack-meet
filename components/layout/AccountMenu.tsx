@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
-import { signOut } from "next-auth/react";
 import { useDropdownMenu } from "@/hooks/useDropdownMenu";
+import { useSignOut } from "@/hooks/useSignOut";
 
 export type AccountUser = {
     name: string | null;
@@ -18,6 +18,7 @@ const ITEM_CLASSES = "flex min-h-11 w-full cursor-pointer items-center rounded-m
 
 const AccountMenu = ({ user }: { user: AccountUser }) => {
     const { isOpen, toggle, close, containerRef, buttonRef, menuRef } = useDropdownMenu();
+    const signOut = useSignOut();
 
     return (
         <span ref={containerRef} className="relative ml-2">
@@ -51,7 +52,7 @@ const AccountMenu = ({ user }: { user: AccountUser }) => {
                     <button
                         type="button"
                         role="menuitem"
-                        onClick={() => signOut({ callbackUrl: "/" })}
+                        onClick={signOut}
                         className={`${ITEM_CLASSES} text-muted`}
                     >
                         Sign out
