@@ -39,3 +39,36 @@ export async function getHostedEvents(userId: string): Promise<HostedEvent[]> {
     const past = hosted.filter((event) => !event.isUpcoming).reverse();
     return [...upcoming, ...past];
 }
+
+export type BookedEvent = Pick<EventFields, "title" | "slug" | "date" | "time" | "mode" | "location"> & {
+    bookingId: string;
+    bookedOn: string;
+};
+
+type BookingDoc = { _id: { toString(): string }; eventId: { toString(): string }; createdAt: Date };
+
+// This user's bookings at upcoming events, soonest event first. Guest bookings made with the
+// same email aren't included, because emails aren't verified yet.
+export async function getUpcomingBookings(userId: string): Promise<BookedEvent[]> {
+    await connectDB();
+    const bookings = await Booking.find({ userId, hiddenByUser: { $ne: true } })
+        .select("eventId createdAt")
+        .sort({ createdAt: 1 })
+        .lean<BookingDoc[]>();
+    if (bookings.length === 0) return [];
+
+    const events = await Event.find({ _id: { $in: bookings.map((booking) => booking.eventId) }, date: { $gte: today() } })
+        .select("title slug date time mode location")
+        .sort({ date: 1, time: 1 })
+        .lean<HostedEventDoc[]>();
+
+    return events.flatMap(({ _id, ...event }) =>
+        bookings
+            .filter((booking) => booking.eventId.toString() === _id.toString())
+            .map((booking): BookedEvent => ({
+                ...event,
+                bookingId: booking._id.toString(),
+                bookedOn: booking.createdAt.toISOString().slice(0, 10),
+            }))
+    );
+}

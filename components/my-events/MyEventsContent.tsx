@@ -2,9 +2,10 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import MyEventsTabs from "@/components/my-events/MyEventsTabs";
 import HostingList from "@/components/my-events/HostingList";
+import BookedList from "@/components/my-events/BookedList";
 import { countEventsByUser } from "@/lib/data/events";
 import { countUpcomingBookingsByUser } from "@/lib/data/bookings";
-import { getHostedEvents } from "@/lib/data/my-events";
+import { getHostedEvents, getUpcomingBookings } from "@/lib/data/my-events";
 import { parseMyEventsTab, type MyEventsSearchParams } from "@/lib/url/my-events-query";
 
 // A count that fails to load is left out, so a failure never reads as "0".
@@ -23,10 +24,11 @@ const MyEventsContent = async ({ searchParams }: { searchParams: Promise<MyEvent
     if (!userId) redirect(`/auth/sign-in?next=${encodeURIComponent(`/my-events?tab=${tab}`)}`);
 
     // Only the open tab's list is loaded.
-    const [hostingCount, bookedCount, hostedEvents] = await Promise.all([
+    const [hostingCount, bookedCount, hostedEvents, bookings] = await Promise.all([
         orNull(countEventsByUser(userId)),
         orNull(countUpcomingBookingsByUser(userId)),
         tab === "hosting" ? getHostedEvents(userId) : null,
+        tab === "booked" ? getUpcomingBookings(userId) : null,
     ]);
 
     return (
@@ -40,6 +42,7 @@ const MyEventsContent = async ({ searchParams }: { searchParams: Promise<MyEvent
             />
             <div role="tabpanel" id={`my-events-panel-${tab}`} aria-labelledby={`my-events-tab-${tab}`}>
                 {hostedEvents && <HostingList events={hostedEvents} />}
+                {bookings && <BookedList bookings={bookings} />}
             </div>
         </>
     );

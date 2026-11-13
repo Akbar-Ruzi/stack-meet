@@ -36,6 +36,14 @@ export function formatDayAndDate(date: string) {
     }).format(parsed);
 }
 
+// "Nov 14", or an empty string when the date isn't set.
+export function formatMonthDay(date: string) {
+    const parsed = new Date(`${date}T00:00:00Z`);
+    if (isNaN(parsed.getTime())) return "";
+
+    return new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "short", day: "numeric" }).format(parsed);
+}
+
 // "Sat, Nov 14 2026", or an empty string when the date isn't set.
 export function formatFullDate(date: string) {
     const dayAndDate = formatDayAndDate(date);
