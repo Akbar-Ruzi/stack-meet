@@ -1,5 +1,5 @@
 import Link from "next/link";
-import EventCard from "@/components/events/EventCard";
+import EventCard from "@/components/home/EventCard";
 import ModeFilter from "@/components/home/ModeFilter";
 import { getUpcomingEvents, type EventRecord } from "@/lib/data/events";
 import type { HomeQuery } from "@/lib/url/home-query";

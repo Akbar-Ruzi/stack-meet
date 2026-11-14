@@ -67,8 +67,8 @@ stack-meet/
 ├── components/
 │   ├── ui/                     # Shared building blocks: buttons, inputs, badges
 │   ├── layout/                 # Header, account menu and footer
-│   ├── events/                 # Event card, event details and booking form
-│   ├── home/                   # Home page components
+│   ├── events/                 # Event page: details, booking form and similar events
+│   ├── home/                   # Home page components, including the event card
 │   ├── auth/                   # Sign-in and sign-up forms
 │   ├── createEvent/            # Create event page form
 │   ├── editEvent/              # Edit event page and form
