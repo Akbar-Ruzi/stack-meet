@@ -85,3 +85,11 @@ export function toEventFormData(values: EventFormValues): FormData {
 
     return data;
 }
+
+// True when saving would change the event. It compares what would be sent, so spaces around
+// text, blank agenda rows and fields the format doesn't use don't count as changes.
+export function hasEventFormChanges(values: EventFormValues, saved: EventFormValues): boolean {
+    if (values.image?.[0]) return true;
+    const toSent = (formValues: EventFormValues) => JSON.stringify([...toEventFormData(formValues).entries()]);
+    return toSent(values) !== toSent(saved);
+}

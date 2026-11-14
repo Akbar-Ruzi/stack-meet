@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { flushSync } from "react-dom";
+import { useCallback, useRef, useState } from "react";
 import { useForm, type FieldValues, type Path, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
@@ -7,65 +6,69 @@ import type { z } from "zod";
 import { TOTAL_STEPS } from "@/lib/events/form";
 import type { EventFormValues } from "@/types/event.types";
 
+// The last step's button takes Continue's place, so the second click of a double-click would land on it.
+const LAST_STEP_GUARD_MS = 500;
+
 type EventFormStepsOptions = {
     defaultValues: EventFormValues;
     schemas: z.ZodType<FieldValues, FieldValues>[]; // one per step, each checking an object of fields
-    allStepsUnlocked: boolean; // false: only finished steps can be reopened
     isSubmitting: boolean;
+    onLastStepSubmit: () => Promise<void>; // runs once the last step passes its check
 };
 
-// The step on screen, the form, and moving between steps. Continue checks only the step on screen.
-export function useEventFormSteps({ defaultValues, schemas, allStepsUnlocked, isSubmitting }: EventFormStepsOptions) {
+// The step on screen, the form, and moving between steps. Steps unlock one at a time:
+// Continue checks only the step on screen, and the last step's button submits.
+export function useEventFormSteps({ defaultValues, schemas, isSubmitting, onLastStepSubmit }: EventFormStepsOptions) {
     const [step, setStep] = useState(1);
+    const reachedLastStepAt = useRef(0);
 
     const form = useForm<EventFormValues>({
         resolver: zodResolver(schemas[step - 1]) as unknown as Resolver<EventFormValues>,
         defaultValues,
     });
 
-    // Resolves true when the step was valid and the next one is now showing.
     const goNext = async () => {
         const stepIsValid = await form.trigger(undefined, { shouldFocus: true });
-        if (!stepIsValid || step === TOTAL_STEPS) return false;
+        if (!stepIsValid) return;
+        if (step + 1 === TOTAL_STEPS) reachedLastStepAt.current = Date.now();
         setStep((current) => current + 1);
-        return true;
     };
 
-    // When steps are locked, only finished ones can be reopened, so Continue's check can't be skipped.
+    // Only finished steps can be reopened, so Continue's check can't be skipped.
     const goToStep = (target: number) => {
-        if (target === step || isSubmitting) return;
-        if (!allStepsUnlocked && target > step) return;
+        if (target >= step || isSubmitting) return;
         form.clearErrors();
         setStep(target);
     };
 
     const goBack = () => goToStep(step - 1);
 
-    // Unlocked steps can be skipped, so saving checks every step, not only the one on screen.
-    // Returns false and opens the first step with a problem, showing its errors there.
-    const validateAllSteps = () => {
-        const values = form.getValues();
+    // Stable, so the edit form can run it from an effect.
+    const resetSteps = useCallback(
+        (values: EventFormValues) => {
+            form.reset(values);
+            setStep(1);
+        },
+        [form],
+    );
 
-        for (const [index, schema] of schemas.entries()) {
-            const { error } = schema.safeParse(values);
-            if (!error) continue;
-
-            // The step is shown before the errors are set, so the first field can take focus.
-            flushSync(() => setStep(index + 1));
-            form.clearErrors();
-            error.issues.forEach((issue, issueIndex) => {
-                const name = issue.path.join(".") as Path<EventFormValues>;
-                form.setError(name, { type: issue.code, message: issue.message }, { shouldFocus: issueIndex === 0 });
-            });
-            return false;
-        }
-
-        return true;
+    // Enter continues on the earlier steps. On the last one it does nothing, so
+    // the form only submits from its button.
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+        if (e.key === "Enter" && step === TOTAL_STEPS && e.target instanceof HTMLInputElement) e.preventDefault();
     };
 
-    const resetSteps = (values: EventFormValues) => {
-        form.reset(values);
-        setStep(1);
+    const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+        if (step < TOTAL_STEPS) {
+            e.preventDefault();
+            goNext();
+            return;
+        }
+        if (Date.now() - reachedLastStepAt.current < LAST_STEP_GUARD_MS) {
+            e.preventDefault();
+            return;
+        }
+        form.handleSubmit(onLastStepSubmit)(e);
     };
 
     // A field's error goes away as soon as it's edited.
@@ -74,5 +77,5 @@ export function useEventFormSteps({ defaultValues, schemas, allStepsUnlocked, is
         if (name) form.clearErrors(name);
     };
 
-    return { form, step, goNext, goToStep, goBack, validateAllSteps, resetSteps, handleChange };
+    return { form, step, goToStep, goBack, resetSteps, handleSubmit, handleChange, handleKeyDown };
 }

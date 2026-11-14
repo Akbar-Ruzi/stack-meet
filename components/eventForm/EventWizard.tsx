@@ -24,7 +24,7 @@ type EventWizardProps = {
 const EventWizard = ({ form, step, variant, savedEvent, onGoToStep, onSubmit, onChange, onKeyDown, actions }: EventWizardProps) => (
     <>
         <div className="mx-auto max-w-312 px-6 pb-8">
-            <StepProgress step={step} onGoToStep={onGoToStep} allStepsUnlocked={variant === "edit"} />
+            <StepProgress step={step} onGoToStep={onGoToStep} />
         </div>
 
         <section className="mx-auto flex max-w-312 flex-wrap items-start gap-10 px-6 pb-24">

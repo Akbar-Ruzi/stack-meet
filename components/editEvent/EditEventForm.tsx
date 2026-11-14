@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import EventWizard from "@/components/eventForm/EventWizard";
 import Button from "@/components/ui/Button";
 import { useEditEventForm } from "@/hooks/eventForm/useEditEventForm";
@@ -11,7 +12,8 @@ type EditEventFormProps = {
 };
 
 const EditEventForm = ({ defaultValues, savedEvent }: EditEventFormProps) => {
-    const { form, step, goBack, goToStep, handleSubmit, handleChange } = useEditEventForm(defaultValues);
+    const { form, step, isSaving, hasChanges, goBack, goToStep, handleSubmit, handleChange, handleKeyDown } =
+        useEditEventForm(defaultValues, savedEvent.slug);
 
     return (
         <EventWizard
@@ -22,10 +24,22 @@ const EditEventForm = ({ defaultValues, savedEvent }: EditEventFormProps) => {
             onGoToStep={goToStep}
             onSubmit={handleSubmit}
             onChange={handleChange}
+            onKeyDown={handleKeyDown}
             actions={
                 <>
-                    {step > 1 && <Button variant="secondary" onClick={goBack}>← Back</Button>}
-                    {step < TOTAL_STEPS && <Button type="submit" className="px-6.5">Continue →</Button>}
+                    <Link href="/my-events" className="inline-flex min-h-13 items-center px-3 text-base text-muted">
+                        Cancel
+                    </Link>
+                    {step > 1 && <Button variant="secondary" onClick={goBack} disabled={isSaving}>← Back</Button>}
+                    {step < TOTAL_STEPS ? (
+                        <Button type="submit" className="px-6.5">Continue →</Button>
+                    ) : hasChanges ? (
+                        <Button type="submit" disabled={isSaving} className="px-6.5">
+                            {isSaving ? "Saving..." : "Save changes"}
+                        </Button>
+                    ) : (
+                        <span className="inline-flex min-h-13 items-center px-3 text-base text-muted">No changes yet</span>
+                    )}
                 </>
             }
         />

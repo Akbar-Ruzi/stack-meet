@@ -156,6 +156,14 @@ Create event form
 
 ### Editing or deleting an event
 
+Only the owner can open the Edit event page, and only while the event is upcoming. It uses the same three steps as Create event, filled in with the saved event: Continue checks each step, and Save changes on the last step appears once something has changed. A new cover image is optional, and the slug never changes, so shared links keep working.
+
+```text
+Edit event form (step 3, Save changes)
+  → PATCH /api/events/[slug]
+  → opens the event page
+```
+
 ```text
 PATCH or DELETE /api/events/[slug]
   → checks the user is signed in (401 if not)

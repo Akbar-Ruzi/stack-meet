@@ -23,7 +23,7 @@ const EditEventContent = async ({ slug }: { slug: Promise<string> }) => {
                     Edit event
                 </h1>
                 <p className="mt-3.5 max-w-140 text-lg leading-normal text-muted">
-                    Jump to any step and save when you&apos;re done. Fields marked <span className="text-accent">*</span> are required.
+                    Go through each step and save on the last one. Fields marked <span className="text-accent">*</span> are required.
                 </p>
             </section>
 
