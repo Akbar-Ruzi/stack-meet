@@ -1,4 +1,5 @@
-import CreateEventForm from "@/components/createEvent/CreateEventForm";
+import { Suspense } from "react";
+import CreateEventContent from "@/components/createEvent/CreateEventContent";
 
 const CreateEventPage = () => (
     <div data-full-width>
@@ -12,7 +13,9 @@ const CreateEventPage = () => (
             </p>
         </section>
 
-        <CreateEventForm />
+        <Suspense fallback={null}>
+            <CreateEventContent />
+        </Suspense>
     </div>
 );
 
