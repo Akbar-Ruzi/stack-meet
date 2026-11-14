@@ -142,6 +142,18 @@ Sign in:  form → Auth.js → checks the password → creates a JWT session coo
 
 Sessions include the user's ID and role, so the server can check permissions.
 
+### Protected pages
+
+Create event, My events and Edit event need an account. Each one is checked twice:
+
+```text
+Request for /events/create, /my-events or /events/[slug]/edit
+  → proxy.ts: signed out? → redirect to sign-in (307), and the page never renders
+  → the page's own check: signed out? → redirect to sign-in
+```
+
+`proxy.ts` runs before the page, so a signed-out visitor is sent to sign-in without the page loading. The page's own check catches any request that gets past the proxy, for example when the proxy doesn't run. The Edit event page also checks that the user owns the event, which the proxy can't do. The API routes check the session again before changing any data.
+
 ### Creating an event
 
 Creating an event requires an account.
@@ -193,3 +205,22 @@ The app uses API routes and Server Actions, which both reach MongoDB through Mon
 Events link to their owner through `createdBy`, and bookings link to their event through `eventId`. Guest bookings have no `userId`.
 
 An event's `mode` is `online`, `in-person` or `hybrid`. In-person and hybrid events require a `venue` and `location`. `onlineUrl` is hidden from public responses, and each `agenda` item has a `start` and a `title`.
+
+## Known issues
+
+### Next.js needs a security update
+
+The app runs on Next.js 16.0.0 and React 19.2.0, which have published security warnings. `npm audit` reports, among others:
+
+| Severity | Problem | Advisory |
+|---|---|---|
+| Critical | Remote code execution through the React Server Components protocol | [GHSA-9qr9-h5gf-34mp](https://github.com/advisories/GHSA-9qr9-h5gf-34mp) |
+| High | Denial of service through Server Components | [GHSA-mwv6-3258-q52c](https://github.com/advisories/GHSA-mwv6-3258-q52c) |
+| Moderate | Server Action source code exposure | [GHSA-w37m-7fhw-fmv9](https://github.com/advisories/GHSA-w37m-7fhw-fmv9) |
+| Moderate | Denial of service through the Image Optimizer's `remotePatterns` | [GHSA-9g9p-9gw9-jx7f](https://github.com/advisories/GHSA-9g9p-9gw9-jx7f) |
+
+The app uses Server Components and a Server Action, so it's affected. On a development machine the risk is low, because only the local network can reach the dev server. Before the site is deployed, Next.js must be updated to 16.4.6 or later, with React and `eslint-config-next` to their matching versions. Run `npm audit` afterwards to confirm the warnings are gone.
+
+### The proxy doesn't run in builds made on Windows
+
+In Next.js 16.0.0, `next build` on Windows doesn't register `proxy.ts`, because it compares the file's path with `/proxy` while Windows paths use `\`. Builds on Linux aren't affected. Signed-out visitors are still sent to sign-in by each page's own check (see [Protected pages](#protected-pages)), but the response is a 200 that redirects in the browser, not a 307. Newer Next.js versions fix part of this, so check the build's route list for "ƒ Proxy (Middleware)" after updating.
