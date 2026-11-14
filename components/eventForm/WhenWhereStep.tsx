@@ -1,7 +1,7 @@
 import { useWatch, type UseFormReturn } from "react-hook-form";
 import { Input } from "@/components/ui/Input";
-import ModeSwitch from "@/components/createEvent/ModeSwitch";
-import StepFields from "@/components/createEvent/StepFields";
+import ModeSwitch from "@/components/eventForm/ModeSwitch";
+import StepFields from "@/components/eventForm/StepFields";
 import type { EventFormValues } from "@/types/event.types";
 
 const ROW_CLASSES = "grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4";

@@ -1,8 +1,8 @@
 import type { UseFormReturn } from "react-hook-form";
 import { Input } from "@/components/ui/Input";
-import AgendaFields from "@/components/createEvent/AgendaFields";
-import StepFields from "@/components/createEvent/StepFields";
-import TagsInput from "@/components/createEvent/TagsInput";
+import AgendaFields from "@/components/eventForm/AgendaFields";
+import StepFields from "@/components/eventForm/StepFields";
+import TagsInput from "@/components/eventForm/TagsInput";
 import type { EventFormValues } from "@/types/event.types";
 
 const AudienceStep = ({ form, active }: { form: UseFormReturn<EventFormValues>; active: boolean }) => {

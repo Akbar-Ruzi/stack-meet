@@ -1,5 +1,5 @@
 import { useWatch, type UseFormReturn } from "react-hook-form";
-import EventPreviewDialog from "@/components/createEvent/EventPreviewDialog";
+import EventPreviewDialog from "@/components/eventForm/EventPreviewDialog";
 import DateTile from "@/components/ui/DateTile";
 import FormatBadge from "@/components/ui/FormatBadge";
 import { useEventPreviewDialog } from "@/hooks/useEventPreviewDialog";

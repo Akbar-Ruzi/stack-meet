@@ -70,7 +70,9 @@ stack-meet/
 │   ├── events/                 # Event card, event details and booking form
 │   ├── home/                   # Home page components
 │   ├── auth/                   # Sign-in and sign-up forms
-│   └── createEvent/            # Create event form
+│   ├── createEvent/            # Create event page form
+│   ├── editEvent/              # Edit event page and form
+│   └── eventForm/              # Form steps and preview shared by Create and Edit event
 ├── database/                   # Mongoose models: User, Event, Booking
 ├── context/                    # React context providers
 ├── lib/

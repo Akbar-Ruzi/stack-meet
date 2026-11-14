@@ -1,5 +1,5 @@
 import type { MouseEvent, RefObject } from "react";
-import EventPagePreview from "@/components/createEvent/EventPagePreview";
+import EventPagePreview from "@/components/eventForm/EventPagePreview";
 import type { EventFormValues } from "@/types/event.types";
 
 const TITLE_ID = "event-preview-title";

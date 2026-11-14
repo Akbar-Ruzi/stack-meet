@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import type { UseFormReturn } from "react-hook-form";
-import AudienceStep from "@/components/createEvent/AudienceStep";
-import BasicsStep from "@/components/createEvent/BasicsStep";
-import EventPreview from "@/components/createEvent/EventPreview";
-import StepProgress from "@/components/createEvent/StepProgress";
-import WhenWhereStep from "@/components/createEvent/WhenWhereStep";
+import AudienceStep from "@/components/eventForm/AudienceStep";
+import BasicsStep from "@/components/eventForm/BasicsStep";
+import EventPreview from "@/components/eventForm/EventPreview";
+import StepProgress from "@/components/eventForm/StepProgress";
+import WhenWhereStep from "@/components/eventForm/WhenWhereStep";
 import { TOTAL_STEPS } from "@/lib/events/form";
 import type { EventFormValues } from "@/types/event.types";
 

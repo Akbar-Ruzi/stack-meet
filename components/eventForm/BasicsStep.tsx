@@ -1,7 +1,7 @@
 import type { UseFormReturn } from "react-hook-form";
 import { Input, Textarea } from "@/components/ui/Input";
-import CoverImageField from "@/components/createEvent/CoverImageField";
-import StepFields from "@/components/createEvent/StepFields";
+import CoverImageField from "@/components/eventForm/CoverImageField";
+import StepFields from "@/components/eventForm/StepFields";
 import type { EventFormValues } from "@/types/event.types";
 
 const BasicsStep = ({ form, active }: { form: UseFormReturn<EventFormValues>; active: boolean }) => {
