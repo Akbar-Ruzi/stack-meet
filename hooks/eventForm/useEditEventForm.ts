@@ -1,4 +1,4 @@
-import { useEventFormSteps } from "@/hooks/useEventFormSteps";
+import { useEventFormSteps } from "@/hooks/eventForm/useEventFormSteps";
 import { TOTAL_STEPS } from "@/lib/events/form";
 import { EDIT_STEP_SCHEMAS } from "@/lib/events/form-zod-schema";
 import type { EventFormValues } from "@/types/event.types";

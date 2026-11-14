@@ -1,7 +1,7 @@
 "use client";
 import EventWizard from "@/components/eventForm/EventWizard";
 import Button from "@/components/ui/Button";
-import { useCreateEventForm } from "@/hooks/useCreateEventForm";
+import { useCreateEventForm } from "@/hooks/eventForm/useCreateEventForm";
 import { TOTAL_STEPS } from "@/lib/events/form";
 
 const CreateEventForm = () => {

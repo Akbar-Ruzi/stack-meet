@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 import { useNavbarLock } from "@/context/navbar-lock-context";
-import { useEventFormSteps } from "@/hooks/useEventFormSteps";
+import { useEventFormSteps } from "@/hooks/eventForm/useEventFormSteps";
 import {
     EVENT_FORM_DEFAULTS,
     TOTAL_STEPS,

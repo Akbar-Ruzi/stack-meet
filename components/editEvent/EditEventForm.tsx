@@ -1,7 +1,7 @@
 "use client";
 import EventWizard from "@/components/eventForm/EventWizard";
 import Button from "@/components/ui/Button";
-import { useEditEventForm } from "@/hooks/useEditEventForm";
+import { useEditEventForm } from "@/hooks/eventForm/useEditEventForm";
 import { TOTAL_STEPS } from "@/lib/events/form";
 import type { EventFormValues } from "@/types/event.types";
 
