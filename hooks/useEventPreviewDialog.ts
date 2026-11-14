@@ -4,14 +4,15 @@ import type { EventFormValues } from "@/types/event.types";
 type OpenPreview = { values: EventFormValues; coverUrl: string | null };
 
 // The native <dialog> handles Esc, keeping focus inside and returning it on close.
-export function useEventPreviewDialog(getValues: () => EventFormValues) {
+// savedCoverUrl is the event's current cover when editing, shown until a new file is chosen.
+export function useEventPreviewDialog(getValues: () => EventFormValues, savedCoverUrl: string | null = null) {
     const dialogRef = useRef<HTMLDialogElement>(null);
     const [preview, setPreview] = useState<OpenPreview | null>(null);
 
     const open = () => {
         const values = getValues();
         const file = values.image?.[0];
-        setPreview({ values, coverUrl: file ? URL.createObjectURL(file) : null });
+        setPreview({ values, coverUrl: file ? URL.createObjectURL(file) : savedCoverUrl });
         dialogRef.current?.showModal();
     };
 
@@ -19,7 +20,8 @@ export function useEventPreviewDialog(getValues: () => EventFormValues) {
 
     // Runs however the dialog was closed: the button, the backdrop or Esc.
     const handleClosed = () => {
-        if (preview?.coverUrl) URL.revokeObjectURL(preview.coverUrl);
+        // Only the URL made for a chosen file is freed. The saved cover is a normal link.
+        if (preview?.coverUrl?.startsWith("blob:")) URL.revokeObjectURL(preview.coverUrl);
         setPreview(null);
     };
 

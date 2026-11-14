@@ -10,9 +10,12 @@ type EventPreviewDialogProps = {
     onClose: () => void;
     onClosed: () => void;
     onBackdropClick: (e: MouseEvent<HTMLDialogElement>) => void;
+    status: string;
+    savedSlug?: string;
+    submitLabel: string;
 };
 
-const EventPreviewDialog = ({ dialogRef, preview, onClose, onClosed, onBackdropClick }: EventPreviewDialogProps) => (
+const EventPreviewDialog = ({ dialogRef, preview, onClose, onClosed, onBackdropClick, status, savedSlug, submitLabel }: EventPreviewDialogProps) => (
     <dialog
         ref={dialogRef}
         aria-labelledby={TITLE_ID}
@@ -24,7 +27,7 @@ const EventPreviewDialog = ({ dialogRef, preview, onClose, onClosed, onBackdropC
             <div className="sticky top-0 z-1 flex items-center justify-between gap-4 border-b border-line bg-bg/94 py-3 pl-6 pr-4">
                 <span className="flex min-w-0 items-center gap-2.5 font-mono text-[13px] text-muted">
                     <span className="whitespace-nowrap rounded-full border border-dashed border-accent px-2.5 py-1 text-accent">preview</span>
-                    <span className="truncate">not published yet — only you can see this</span>
+                    <span className="truncate">{status}</span>
                 </span>
                 <button type="button" onClick={onClose} aria-label="Close preview" className="flex size-11 flex-none cursor-pointer items-center justify-center rounded-[10px] border border-border bg-field text-text">
                     <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
@@ -32,7 +35,15 @@ const EventPreviewDialog = ({ dialogRef, preview, onClose, onClosed, onBackdropC
                     </svg>
                 </button>
             </div>
-            {preview && <EventPagePreview titleId={TITLE_ID} values={preview.values} coverUrl={preview.coverUrl} />}
+            {preview && (
+                <EventPagePreview
+                    titleId={TITLE_ID}
+                    values={preview.values}
+                    coverUrl={preview.coverUrl}
+                    savedSlug={savedSlug}
+                    submitLabel={submitLabel}
+                />
+            )}
         </div>
     </dialog>
 );

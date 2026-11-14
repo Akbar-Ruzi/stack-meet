@@ -6,12 +6,27 @@ import { useEventPreviewDialog } from "@/hooks/useEventPreviewDialog";
 import { getEventPlace } from "@/lib/events/display";
 import type { EventFormValues } from "@/types/event.types";
 
-const EventPreview = ({ form }: { form: UseFormReturn<EventFormValues> }) => {
+const VARIANT_TEXT = {
+    create: { status: "not published yet — only you can see this", submitLabel: "Publish event" },
+    edit: { status: "unsaved changes — attendees still see the published version", submitLabel: "Save changes" },
+};
+
+type EventPreviewProps = {
+    form: UseFormReturn<EventFormValues>;
+    variant: keyof typeof VARIANT_TEXT;
+    savedEvent?: { slug: string; image: string }; // when editing
+};
+
+const EventPreview = ({ form, variant, savedEvent }: EventPreviewProps) => {
     const [title, date, time, mode, location, tags] = useWatch({
         control: form.control,
         name: ["title", "date", "time", "mode", "location", "tags"],
     });
-    const { dialogRef, preview, open, close, handleClosed, handleBackdropClick } = useEventPreviewDialog(() => form.getValues());
+    const { dialogRef, preview, open, close, handleClosed, handleBackdropClick } = useEventPreviewDialog(
+        () => form.getValues(),
+        savedEvent?.image,
+    );
+    const { status, submitLabel } = VARIANT_TEXT[variant];
     const placeAndTime = [getEventPlace({ mode, location }), time].filter(Boolean).join(" · ");
 
     return (
@@ -55,6 +70,9 @@ const EventPreview = ({ form }: { form: UseFormReturn<EventFormValues> }) => {
                 onClose={close}
                 onClosed={handleClosed}
                 onBackdropClick={handleBackdropClick}
+                status={status}
+                savedSlug={savedEvent?.slug}
+                submitLabel={submitLabel}
             />
         </aside>
     );

@@ -6,15 +6,21 @@ const dotClasses = (stepNumber: number, currentStep: number) => {
     return "border border-border text-muted";
 };
 
-const StepProgress = ({ step, onGoToStep }: { step: number; onGoToStep: (target: number) => void }) => (
+type StepProgressProps = {
+    step: number;
+    onGoToStep: (target: number) => void;
+    allStepsUnlocked?: boolean; // when editing, any step can be opened
+};
+
+const StepProgress = ({ step, onGoToStep, allStepsUnlocked = false }: StepProgressProps) => (
     <ol aria-label="Progress" className="mt-9 grid max-w-200 grid-cols-3 gap-3 max-sm:hidden">
         {FORM_STEPS.map(({ title }, index) => {
             const stepNumber = index + 1;
-            const locked = stepNumber > step;
+            const locked = !allStepsUnlocked && stepNumber > step;
 
             return (
                 <li key={title} aria-current={stepNumber === step ? "step" : undefined} className="flex flex-col gap-2.5">
-                    <span aria-hidden="true" className={`h-1 rounded-[4px] ${locked ? "bg-border" : "bg-accent"}`} />
+                    <span aria-hidden="true" className={`h-1 rounded-[4px] ${stepNumber <= step ? "bg-accent" : "bg-border"}`} />
                     <button
                         type="button"
                         onClick={() => onGoToStep(stepNumber)}

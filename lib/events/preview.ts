@@ -20,13 +20,14 @@ export const getInitials = (name: string) =>
         .toUpperCase();
 
 // The text for the event page preview, with bracketed placeholders for anything still empty.
-export function buildEventPagePreview(values: EventFormValues) {
+// An edited event keeps its slug, so savedSlug replaces the one made from the title.
+export function buildEventPagePreview(values: EventFormValues, savedSlug?: string) {
     const title = values.title.trim();
     const organizer = values.organizer.trim();
     const dayAndDate = formatDayAndDate(values.date);
 
     return {
-        slug: toSlug(title) || "[event-title]",
+        slug: savedSlug || toSlug(title) || "[event-title]",
         title: title || "[Event title]",
         description: values.description.trim() || "[Short description]",
         overview: values.overview.trim() || "[Overview — what attendees will do, who it’s for and what to bring]",

@@ -1,47 +1,35 @@
 import { useRef, useState } from "react";
-import { useForm, type Path, type Resolver } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 
 import { useNavbarLock } from "@/context/navbar-lock-context";
+import { useEventFormSteps } from "@/hooks/useEventFormSteps";
 import {
     EVENT_FORM_DEFAULTS,
     TOTAL_STEPS,
     toEventFormData,
 } from "@/lib/events/form";
 import { STEP_SCHEMAS } from "@/lib/events/form-zod-schema";
-import type { EventFormValues } from "@/types/event.types";
 
 // Publish takes Continue's place, so the second click of a double-click would land on it.
 const PUBLISH_GUARD_MS = 500;
 
-// Holds the current step, checks only that step on Continue, and publishes on the last one.
+// Steps unlock one at a time through Continue, and the last one publishes.
 export function useCreateEventForm() {
     const { setIsNavbarDisabled } = useNavbarLock();
-    const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const reachedLastStepAt = useRef(0);
 
-    const form = useForm<EventFormValues>({
-        resolver: zodResolver(STEP_SCHEMAS[step - 1]) as unknown as Resolver<EventFormValues>,
+    const { form, step, goNext, goToStep, goBack, resetSteps, handleChange } = useEventFormSteps({
         defaultValues: EVENT_FORM_DEFAULTS,
+        schemas: STEP_SCHEMAS,
+        allStepsUnlocked: false,
+        isSubmitting,
     });
 
-    const goNext = async () => {
-        const stepIsValid = await form.trigger(undefined, { shouldFocus: true });
-        if (!stepIsValid) return;
-        if (step + 1 === TOTAL_STEPS) reachedLastStepAt.current = Date.now();
-        setStep((current) => current + 1);
+    const continueToNext = async () => {
+        const movingToLastStep = step + 1 === TOTAL_STEPS;
+        if ((await goNext()) && movingToLastStep) reachedLastStepAt.current = Date.now();
     };
-
-    // Only finished steps can be reopened, so Continue's check can't be skipped.
-    const goToStep = (target: number) => {
-        if (target >= step || isSubmitting) return;
-        form.clearErrors();
-        setStep(target);
-    };
-
-    const goBack = () => goToStep(step - 1);
 
     const publish = async () => {
         setIsSubmitting(true);
@@ -59,8 +47,7 @@ export function useCreateEventForm() {
             }
 
             toast.success(data.message || "Event created successfully.", { id: toastId });
-            form.reset(EVENT_FORM_DEFAULTS);
-            setStep(1);
+            resetSteps(EVENT_FORM_DEFAULTS);
         } catch (error) {
             console.error("Create event failed:", error);
             toast.error("Something went wrong. Please try again.", { id: toastId });
@@ -79,7 +66,7 @@ export function useCreateEventForm() {
     const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
         if (step < TOTAL_STEPS) {
             e.preventDefault();
-            goNext();
+            continueToNext();
             return;
         }
         if (Date.now() - reachedLastStepAt.current < PUBLISH_GUARD_MS) {
@@ -87,12 +74,6 @@ export function useCreateEventForm() {
             return;
         }
         form.handleSubmit(publish)(e);
-    };
-
-    // A field's error goes away as soon as it's edited.
-    const handleChange = (e: React.ChangeEvent<HTMLFormElement>) => {
-        const name = e.target.name as Path<EventFormValues> | "";
-        if (name) form.clearErrors(name);
     };
 
     return { form, step, isSubmitting, goBack, goToStep, handleSubmit, handleChange, handleKeyDown };

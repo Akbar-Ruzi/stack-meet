@@ -10,10 +10,12 @@ type EventPagePreviewProps = {
     titleId: string;
     values: EventFormValues;
     coverUrl: string | null;
+    savedSlug?: string;
+    submitLabel: string;
 };
 
-const EventPagePreview = ({ titleId, values, coverUrl }: EventPagePreviewProps) => {
-    const event = buildEventPagePreview(values);
+const EventPagePreview = ({ titleId, values, coverUrl, savedSlug, submitLabel }: EventPagePreviewProps) => {
+    const event = buildEventPagePreview(values, savedSlug);
 
     return (
         <div className="flex flex-col gap-10 px-10 pb-12 pt-8 wrap-anywhere max-sm:px-6 max-sm:pb-16">
@@ -72,7 +74,7 @@ const EventPagePreview = ({ titleId, values, coverUrl }: EventPagePreviewProps) 
             </section>
 
             <p className="border-t border-line pt-6 text-[15px] text-muted">
-                Looks right? Close the preview and click <strong className="text-text">Publish event</strong>.
+                Looks right? Close the preview and click <strong className="text-text">{submitLabel}</strong>.
             </p>
         </div>
     );

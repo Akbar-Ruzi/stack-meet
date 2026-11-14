@@ -1,4 +1,4 @@
-import type { EventFormValues } from "@/types/event.types";
+import type { EventFields, EventFormValues } from "@/types/event.types";
 
 export const EVENT_FORM_DEFAULTS: EventFormValues = {
     title: "",
@@ -24,6 +24,28 @@ export const FORM_STEPS = [
 ];
 
 export const TOTAL_STEPS = FORM_STEPS.length;
+
+// A saved event as form values, for the edit form. The cover stays empty: no new file means keep the current one.
+export function toEventFormValues(event: EventFields): EventFormValues {
+    const agenda = (event.agenda ?? []).map(({ start, title }) => ({ time: start, item: title }));
+
+    return {
+        title: event.title,
+        description: event.description,
+        overview: event.overview,
+        image: null,
+        date: event.date,
+        time: event.time,
+        mode: event.mode,
+        venue: event.venue ?? "",
+        location: event.location ?? "",
+        onlineUrl: event.onlineUrl ?? "",
+        organizer: event.organizer,
+        audience: event.audience,
+        tags: event.tags ?? [],
+        agenda: agenda.length > 0 ? agenda : EVENT_FORM_DEFAULTS.agenda,
+    };
+}
 
 // Blank rows are allowed in the form, but they aren't part of the event.
 export function getFilledAgendaRows(rows: EventFormValues["agenda"]) {

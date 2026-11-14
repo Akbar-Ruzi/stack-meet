@@ -78,10 +78,16 @@ export const getEventBySlug = cache(async (slug: string): Promise<EventRecord | 
 });
 
 // The event, only if this user may edit it: the owner, and only while it's upcoming. Otherwise null.
+// Includes the online link, which public queries leave out, so the form can show it to its owner.
 export async function getEditableEvent(slug: string, user: { id?: string; role?: string }): Promise<EventRecord | null> {
-    const event = await getEventBySlug(slug);
-    if (!event) return null;
+    const normalizedSlug = slug.trim().toLowerCase();
+    if (!normalizedSlug) return null;
 
+    await connectDB();
+    const doc = await Event.findOne({ slug: normalizedSlug }).select(`${PUBLIC_FIELDS} +onlineUrl`).lean<EventDoc>();
+    if (!doc) return null;
+
+    const event = toRecord(doc);
     return getPermissionError({ event, user, action: "edit", today: today() }) ? null : event;
 }
 
