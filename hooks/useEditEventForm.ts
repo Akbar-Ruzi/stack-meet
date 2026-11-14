@@ -5,7 +5,7 @@ import type { EventFormValues } from "@/types/event.types";
 
 // Starts from the saved event, and any step can be opened at any time.
 export function useEditEventForm(defaultValues: EventFormValues) {
-    const { form, step, goNext, goToStep, goBack, handleChange } = useEventFormSteps({
+    const { form, step, goNext, goToStep, goBack, validateAllSteps, handleChange } = useEventFormSteps({
         defaultValues,
         schemas: EDIT_STEP_SCHEMAS,
         allStepsUnlocked: true,
@@ -18,5 +18,5 @@ export function useEditEventForm(defaultValues: EventFormValues) {
         if (step < TOTAL_STEPS) goNext();
     };
 
-    return { form, step, goBack, goToStep, handleSubmit, handleChange };
+    return { form, step, goBack, goToStep, validateAllSteps, handleSubmit, handleChange };
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { flushSync } from "react-dom";
 import { useForm, type FieldValues, type Path, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
@@ -40,6 +41,28 @@ export function useEventFormSteps({ defaultValues, schemas, allStepsUnlocked, is
 
     const goBack = () => goToStep(step - 1);
 
+    // Unlocked steps can be skipped, so saving checks every step, not only the one on screen.
+    // Returns false and opens the first step with a problem, showing its errors there.
+    const validateAllSteps = () => {
+        const values = form.getValues();
+
+        for (const [index, schema] of schemas.entries()) {
+            const { error } = schema.safeParse(values);
+            if (!error) continue;
+
+            // The step is shown before the errors are set, so the first field can take focus.
+            flushSync(() => setStep(index + 1));
+            form.clearErrors();
+            error.issues.forEach((issue, issueIndex) => {
+                const name = issue.path.join(".") as Path<EventFormValues>;
+                form.setError(name, { type: issue.code, message: issue.message }, { shouldFocus: issueIndex === 0 });
+            });
+            return false;
+        }
+
+        return true;
+    };
+
     const resetSteps = (values: EventFormValues) => {
         form.reset(values);
         setStep(1);
@@ -51,5 +74,5 @@ export function useEventFormSteps({ defaultValues, schemas, allStepsUnlocked, is
         if (name) form.clearErrors(name);
     };
 
-    return { form, step, goNext, goToStep, goBack, resetSteps, handleChange };
+    return { form, step, goNext, goToStep, goBack, validateAllSteps, resetSteps, handleChange };
 }
