@@ -10,10 +10,10 @@ type CancelSpotButtonProps = { bookingId: string; title: string; date: string };
 
 const CancelSpotButton = ({ bookingId, title, date }: CancelSpotButtonProps) => {
     const titleId = useId();
-    const { dialogRef, isPending, open, close, confirm, handleBackdropClick } = useConfirmDialog({
+    const { dialogRef, isPending, error, open, close, confirm, handleBackdropClick } = useConfirmDialog({
         request: () => fetch(`/api/bookings/${encodeURIComponent(bookingId)}`, { method: "DELETE" }),
         successMessage: `Your spot at "${title}" is cancelled.`,
-        errorMessage: "Couldn't cancel your spot. Please try again.",
+        errorMessage: "Couldn't cancel. Please try again.",
     });
 
     return (
@@ -29,6 +29,7 @@ const CancelSpotButton = ({ bookingId, title, date }: CancelSpotButtonProps) => 
                 confirmLabel="Cancel spot"
                 pendingLabel="Canceling..."
                 isPending={isPending}
+                error={error}
                 onKeep={close}
                 onConfirm={confirm}
                 onBackdropClick={handleBackdropClick}

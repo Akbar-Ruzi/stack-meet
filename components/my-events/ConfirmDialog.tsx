@@ -1,5 +1,6 @@
 import type { MouseEvent, ReactNode, RefObject } from "react";
 import Button from "@/components/ui/Button";
+import { FieldError } from "@/components/ui/Input";
 
 type ConfirmDialogProps = {
     dialogRef: RefObject<HTMLDialogElement | null>;
@@ -10,13 +11,15 @@ type ConfirmDialogProps = {
     confirmLabel: string;
     pendingLabel: string;
     isPending: boolean;
+    error: string | null;
     onKeep: () => void;
     onConfirm: () => void;
     onBackdropClick: (e: MouseEvent<HTMLDialogElement>) => void;
 };
 
 // Asks before a change that can't be undone. On phones the two buttons share one row.
-const ConfirmDialog = ({ dialogRef, titleId, heading, children, keepLabel, confirmLabel, pendingLabel, isPending, onKeep, onConfirm, onBackdropClick }: ConfirmDialogProps) => (
+// A failed request shows a short red line above the buttons.
+const ConfirmDialog = ({ dialogRef, titleId, heading, children, keepLabel, confirmLabel, pendingLabel, isPending, error, onKeep, onConfirm, onBackdropClick }: ConfirmDialogProps) => (
     <dialog
         ref={dialogRef}
         aria-labelledby={titleId}
@@ -27,6 +30,10 @@ const ConfirmDialog = ({ dialogRef, titleId, heading, children, keepLabel, confi
         <div className="w-full max-w-115 rounded-2xl border border-border bg-surface p-6.5">
             <h2 id={titleId} className="text-[22px] font-bold">{heading}</h2>
             <p className="mt-2.5 text-[15px] leading-[1.55] text-body">{children}</p>
+            {/* Always rendered, so screen readers announce the message when it appears. */}
+            <div role="alert">
+                {error && <div className="mt-3.5"><FieldError message={error} /></div>}
+            </div>
             <div className="mt-5.5 flex flex-wrap justify-end gap-2.5 max-[640px]:flex-nowrap max-[640px]:*:min-w-0 max-[640px]:*:flex-1 max-[640px]:*:whitespace-nowrap max-[640px]:*:px-2.5">
                 <Button variant="secondary" size="dialog" onClick={onKeep} disabled={isPending}>
                     {keepLabel}

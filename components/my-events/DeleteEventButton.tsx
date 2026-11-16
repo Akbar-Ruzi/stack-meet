@@ -9,10 +9,10 @@ type DeleteEventButtonProps = { slug: string; title: string; bookedCount: number
 
 const DeleteEventButton = ({ slug, title, bookedCount }: DeleteEventButtonProps) => {
     const titleId = useId();
-    const { dialogRef, isPending, open, close, confirm, handleBackdropClick } = useConfirmDialog({
+    const { dialogRef, isPending, error, open, close, confirm, handleBackdropClick } = useConfirmDialog({
         request: () => fetch(`/api/events/${encodeURIComponent(slug)}`, { method: "DELETE" }),
         successMessage: `Deleted "${title}".`,
-        errorMessage: "Couldn't delete the event. Please try again.",
+        errorMessage: "Couldn't delete. Please try again.",
     });
 
     return (
@@ -28,6 +28,7 @@ const DeleteEventButton = ({ slug, title, bookedCount }: DeleteEventButtonProps)
                 confirmLabel="Delete event"
                 pendingLabel="Deleting..."
                 isPending={isPending}
+                error={error}
                 onKeep={close}
                 onConfirm={confirm}
                 onBackdropClick={handleBackdropClick}
