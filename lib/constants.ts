@@ -5,6 +5,13 @@
 // Events one user can create. Admins are exempt.
 export const MAX_EVENTS_PER_USER = 3;
 
+// Create event, and the sign-in page that signed-out visitors go to instead. Links for
+// signed-out visitors point straight at sign-in, because a redirect in the middle of a
+// page change shows stream errors in Safari during development.
+
+export const CREATE_EVENT_PATH = "/events/create";
+export const SIGN_IN_TO_CREATE_URL = `/auth/sign-in?${new URLSearchParams({ reason: "create", next: CREATE_EVENT_PATH })}`;
+
 // Forms and API checks.
 
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

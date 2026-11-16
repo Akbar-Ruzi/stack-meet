@@ -1,4 +1,9 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import CreateEventLink from "@/components/home/CreateEventLink";
+import { CREATE_EVENT_PATH } from "@/lib/constants";
+
+const BUTTON_CLASSES = "rounded-[10px] bg-accent px-6 py-4 text-center text-base font-bold text-on-accent max-[641px]:flex-[1_1_100%]";
 
 const HostBox = () => (
     <section className="mx-auto max-w-300 px-6 pb-24">
@@ -12,12 +17,10 @@ const HostBox = () => (
                     Publish it in a few minutes and collect RSVPs by email — online, in person or hybrid.
                 </p>
             </div>
-            <Link
-                href="/events/create"
-                className="rounded-[10px] bg-accent px-6 py-4 text-center text-base font-bold text-on-accent max-[641px]:flex-[1_1_100%]"
-            >
-                Create an event
-            </Link>
+            {/* Until the session is read, link to Create event; the proxy still sends signed-out visitors on. */}
+            <Suspense fallback={<Link href={CREATE_EVENT_PATH} className={BUTTON_CLASSES}>Create an event</Link>}>
+                <CreateEventLink className={BUTTON_CLASSES}>Create an event</CreateEventLink>
+            </Suspense>
         </div>
     </section>
 );

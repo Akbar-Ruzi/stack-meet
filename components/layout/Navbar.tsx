@@ -3,12 +3,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import AccountMenu, { type AccountUser } from "@/components/layout/AccountMenu";
 import { useNavbarLock } from "@/context/navbar-lock-context";
+import { CREATE_EVENT_PATH, SIGN_IN_TO_CREATE_URL } from "@/lib/constants";
 
 const getActiveHref = (pathname: string) => {
     if (pathname.startsWith("/auth")) return "/auth/sign-in";
     if (pathname.startsWith("/calendar")) return "/calendar";
     if (pathname.startsWith("/my-events")) return "/my-events";
-    if (pathname === "/events/create" || pathname.endsWith("/edit")) return null;
+    if (pathname === CREATE_EVENT_PATH || pathname.endsWith("/edit")) return null;
     if (pathname === "/" || pathname.startsWith("/events")) return "/";
     return null;
 };
@@ -55,7 +56,7 @@ const Navbar = ({ user }: { user: AccountUser | null }) => {
                         );
                     })}
                     <Link
-                        href="/events/create"
+                        href={user ? CREATE_EVENT_PATH : SIGN_IN_TO_CREATE_URL}
                         className="ml-1.5 rounded-md bg-accent px-4.5 py-3 font-bold text-on-accent max-[641px]:ml-auto max-[641px]:px-3.5 max-[641px]:py-2.5"
                     >
                         Create event
