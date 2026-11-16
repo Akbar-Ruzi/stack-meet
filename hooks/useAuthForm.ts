@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 export type AuthMode = "sign-in" | "sign-up";
@@ -12,7 +11,6 @@ const readField = (form: HTMLFormElement, name: string) =>
 
 // Holds the selected tab and submits the form for that tab.
 export function useAuthForm(initialMode: AuthMode = "sign-in", nextPath = "/") {
-    const router = useRouter();
     const [mode, setMode] = useState<AuthMode>(initialMode);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -32,16 +30,18 @@ export function useAuthForm(initialMode: AuthMode = "sign-in", nextPath = "/") {
 
             if (result.error) {
                 toast.error("Invalid email or password.", { id: toastId });
+                setIsSubmitting(false);
                 return;
             }
 
             toast.success("Welcome back!", { id: toastId });
-            router.push(nextPath);
-            router.refresh();
+            // A full page load, not router.push: the router may still hold the signed-out
+            // redirect for nextPath (e.g. /events/create → sign-in), and reusing it loops forever.
+            // The button stays disabled while the next page loads.
+            window.location.assign(nextPath);
         } catch (error) {
             console.error("Sign in failed:", error);
             toast.error(REQUEST_FAILED_MESSAGE, { id: toastId });
-        } finally {
             setIsSubmitting(false);
         }
     };
