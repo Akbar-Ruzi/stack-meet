@@ -31,7 +31,7 @@ const Navbar = ({ user }: { user: AccountUser | null }) => {
     };
 
     return (
-        <header className="border-b border-line" onClickCapture={blockWhileLocked}>
+        <header className="sticky top-0 z-30 border-b border-line bg-bg/88 backdrop-blur-md" onClickCapture={blockWhileLocked}>
             <div className="mx-auto flex max-w-312 [body:has([data-not-found]:not([style*=none]))_&]:max-w-300 flex-wrap items-center justify-between gap-4 px-6 py-4 max-[641px]:gap-x-2 max-[641px]:gap-y-1.5 max-[641px]:px-4 max-[641px]:py-3 max-[641px]:after:order-1 max-[641px]:after:basis-full max-[641px]:after:content-['']">
                 <Link href="/" className="flex min-h-11 items-center gap-2.5 text-xl font-bold">
                     <span aria-hidden="true" className="flex size-8 items-center justify-center rounded-md bg-accent text-[16px] tracking-[-0.02em] text-on-accent">
