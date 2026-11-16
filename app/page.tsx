@@ -12,7 +12,7 @@ export default function Page({ searchParams }: { searchParams: Promise<HomeSearc
         <div data-full-width>
             <Hero search={query} />
 
-            <section id="events" className="mx-auto max-w-300 scroll-mt-28 px-6 pb-18 pt-6">
+            <section id="events" className="mx-auto max-w-300 scroll-mt-24 max-[641px]:scroll-mt-36 px-6 pb-18 pt-6">
                 <Suspense fallback={<p className="text-muted">Loading events...</p>}>
                     <NextUp query={query} />
                 </Suspense>
