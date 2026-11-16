@@ -1,14 +1,24 @@
 "use client";
 
-import toast from "react-hot-toast";
+import { useState } from "react";
+import { toast } from "@/lib/toast";
 
+const COPY_FAILED_MESSAGE = "Couldn't copy the link. Copy it from the address bar.";
+
+// Copies the page's URL. Success shows a toast; a failure returns a message to show
+// next to the button, which clears on the next successful copy.
 export function useCopyPageLink() {
-    return async () => {
+    const [error, setError] = useState<string | null>(null);
+
+    const copyPageLink = async () => {
         try {
             await navigator.clipboard.writeText(window.location.href);
-            toast.success("Link copied.");
+            setError(null);
+            toast("Link copied");
         } catch {
-            toast.error("Couldn't copy the link. Copy it from the address bar.");
+            setError(COPY_FAILED_MESSAGE);
         }
     };
+
+    return { copyPageLink, error };
 }
