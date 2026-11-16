@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Spinner from "@/components/ui/Spinner";
 import { useDropdownMenu } from "@/hooks/useDropdownMenu";
 import { useSignOut } from "@/hooks/useSignOut";
 
@@ -18,7 +19,7 @@ const ITEM_CLASSES = "flex min-h-11 w-full cursor-pointer items-center rounded-m
 
 const AccountMenu = ({ user }: { user: AccountUser }) => {
     const { isOpen, toggle, close, dismiss, containerRef, buttonRef, menuRef } = useDropdownMenu();
-    const signOut = useSignOut();
+    const { signOut, isSigningOut } = useSignOut();
 
     return (
         <span ref={containerRef} className="relative ml-2">
@@ -65,9 +66,12 @@ const AccountMenu = ({ user }: { user: AccountUser }) => {
                         type="button"
                         role="menuitem"
                         onClick={signOut}
-                        className={`${ITEM_CLASSES} text-muted`}
+                        disabled={isSigningOut}
+                        aria-busy={isSigningOut}
+                        className={`${ITEM_CLASSES} gap-2 text-muted disabled:cursor-not-allowed`}
                     >
-                        Sign out
+                        {isSigningOut && <Spinner size={16} />}
+                        {isSigningOut ? "Signing out…" : "Sign out"}
                     </button>
                 </div>
             )}
