@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { signIn } from "next-auth/react";
-import toast from "react-hot-toast";
+import { getSession, signIn } from "next-auth/react";
+import { toast, toastAfterPageLoad } from "@/lib/toast";
 
 export type AuthMode = "sign-in" | "sign-up";
 
@@ -9,14 +9,25 @@ const REQUEST_FAILED_MESSAGE = "Something went wrong. Please try again.";
 const readField = (form: HTMLFormElement, name: string) =>
     (form.elements.namedItem(name) as HTMLInputElement).value;
 
-// Holds the selected tab and submits the form for that tab.
+const welcomeBack = (name?: string | null) => {
+    const firstName = name?.trim().split(/\s+/)[0];
+    return firstName ? `Welcome back, ${firstName}.` : "Welcome back.";
+};
+
+// Holds the selected tab and submits the form for that tab. A failed request returns
+// formError, shown above the submit button; switching tabs clears it.
 export function useAuthForm(initialMode: AuthMode = "sign-in", nextPath = "/") {
-    const [mode, setMode] = useState<AuthMode>(initialMode);
+    const [mode, setModeState] = useState<AuthMode>(initialMode);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formError, setFormError] = useState<string | null>(null);
+
+    const setMode = (next: AuthMode) => {
+        setModeState(next);
+        setFormError(null);
+    };
 
     const submitSignIn = async (form: HTMLFormElement) => {
         setIsSubmitting(true);
-        const toastId = toast.loading("Signing in...");
 
         try {
             const result = await signIn("credentials", {
@@ -29,26 +40,26 @@ export function useAuthForm(initialMode: AuthMode = "sign-in", nextPath = "/") {
             if (!result) throw new Error("Sign in returned no result.");
 
             if (result.error) {
-                toast.error("Invalid email or password.", { id: toastId });
+                setFormError("Invalid email or password.");
                 setIsSubmitting(false);
                 return;
             }
 
-            toast.success("Welcome back!", { id: toastId });
+            const session = await getSession();
+            toastAfterPageLoad(welcomeBack(session?.user?.name));
             // A full page load, not router.push: the router may still hold the signed-out
             // redirect for nextPath (e.g. /events/create → sign-in), and reusing it loops forever.
             // The button stays disabled while the next page loads.
             window.location.assign(nextPath);
         } catch (error) {
             console.error("Sign in failed:", error);
-            toast.error(REQUEST_FAILED_MESSAGE, { id: toastId });
+            setFormError(REQUEST_FAILED_MESSAGE);
             setIsSubmitting(false);
         }
     };
 
     const submitSignUp = async (form: HTMLFormElement) => {
         setIsSubmitting(true);
-        const toastId = toast.loading("Creating account...");
 
         try {
             const res = await fetch("/api/auth/signup", {
@@ -64,15 +75,15 @@ export function useAuthForm(initialMode: AuthMode = "sign-in", nextPath = "/") {
             const data = await res.json();
 
             if (!res.ok) {
-                toast.error(data.message || "Signup failed.", { id: toastId });
+                setFormError(data.message || "Signup failed.");
                 return;
             }
 
-            toast.success("Account created! Please sign in.", { id: toastId });
             setMode("sign-in");
+            toast("Account created. Please sign in.");
         } catch (error) {
             console.error("Sign up failed:", error);
-            toast.error(REQUEST_FAILED_MESSAGE, { id: toastId });
+            setFormError(REQUEST_FAILED_MESSAGE);
         } finally {
             setIsSubmitting(false);
         }
@@ -80,9 +91,11 @@ export function useAuthForm(initialMode: AuthMode = "sign-in", nextPath = "/") {
 
     const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setFormError(null);
         if (mode === "sign-up") submitSignUp(e.currentTarget);
         else submitSignIn(e.currentTarget);
     };
 
-    return { mode, setMode, isSubmitting, handleSubmit };
+    return { mode, setMode, isSubmitting, formError, handleSubmit };
 }
