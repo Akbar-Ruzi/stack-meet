@@ -3,10 +3,11 @@
 import Button from "@/components/ui/Button";
 import BookingField from "@/components/events/BookingField";
 import BookingSuccess from "@/components/events/BookingSuccess";
+import { FieldError } from "@/components/ui/Input";
 import { useBookingForm } from "@/hooks/useBookingForm";
 
 const BookEvent = () => {
-    const { values, errors, isSubmitting, submitted, onlineUrl, setValue, handleSubmit } = useBookingForm();
+    const { values, errors, isSubmitting, formError, submitted, onlineUrl, setValue, handleSubmit } = useBookingForm();
 
     if (submitted) return <BookingSuccess name={values.name.trim()} onlineUrl={onlineUrl} />;
 
@@ -45,7 +46,15 @@ const BookEvent = () => {
                 onChange={(e) => setValue("phone", e.target.value)}
                 error={errors.phone}
             />
-            <Button type="submit" className="w-full" disabled={isSubmitting}>Reserve my spot</Button>
+            <div>
+                {/* Always rendered, so screen readers announce the message when it appears. */}
+                <div role="alert">
+                    {formError && <div className="mb-2.5"><FieldError message={formError} /></div>}
+                </div>
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting ? "Reserving…" : "Reserve my spot"}
+                </Button>
+            </div>
         </form>
     );
 };
