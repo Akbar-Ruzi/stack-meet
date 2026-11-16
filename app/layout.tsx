@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import AppToaster from "@/components/ui/Toaster";
 import { Toaster } from 'react-hot-toast';
 import { NavbarLockProvider } from "@/context/navbar-lock-context";
 import { auth } from "@/auth";
@@ -60,6 +61,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+          <AppToaster />
         </NavbarLockProvider>
         <Toaster
           position="top-center"

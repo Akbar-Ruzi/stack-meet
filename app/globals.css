@@ -134,6 +134,62 @@
     box-shadow: 0px 4px 40px 0px #00000066;
 }
 
+/* Toasts. Sonner's own layout is replaced: fixed under the sticky header, centered and at most
+   420px wide, full width with 16px sides on mobile, sliding down 8px as it fades in. The list
+   item spans the row, so only the card itself takes clicks. */
+[data-sonner-toaster][data-sonner-toaster][data-sonner-toaster] {
+    z-index: 1000;
+    top: 92px;
+    left: 16px;
+    right: 16px;
+    width: auto;
+    transform: none;
+    font-family: inherit;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-sonner-toast] {
+    left: 0;
+    right: 0;
+    width: auto;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    transform: none;
+    transition: opacity 0.2s ease-out;
+}
+
+.toast-card {
+    max-width: 420px;
+    pointer-events: auto;
+    animation: toast-in 0.2s ease-out;
+}
+
+@keyframes toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+}
+
+@media (max-width: 640px) {
+    [data-sonner-toaster][data-sonner-toaster][data-sonner-toaster] {
+        top: 138px;
+    }
+
+    /* Sonner wraps the card in a plain div, so both have to fill the row. */
+    [data-sonner-toaster] [data-sonner-toast] > *,
+    .toast-card {
+        width: 100%;
+        max-width: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .toast-card {
+        animation: none;
+    }
+}
+
 @layer base {
     * {
         @apply border-border outline-ring/50;
