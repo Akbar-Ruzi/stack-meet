@@ -17,7 +17,7 @@ const getInitials = ({ name, email }: AccountUser) => {
 const ITEM_CLASSES = "flex min-h-11 w-full cursor-pointer items-center rounded-md px-3 text-left text-[15px]";
 
 const AccountMenu = ({ user }: { user: AccountUser }) => {
-    const { isOpen, toggle, close, containerRef, buttonRef, menuRef } = useDropdownMenu();
+    const { isOpen, toggle, close, dismiss, containerRef, buttonRef, menuRef } = useDropdownMenu();
     const signOut = useSignOut();
 
     return (
@@ -39,9 +39,21 @@ const AccountMenu = ({ user }: { user: AccountUser }) => {
                     role="menu"
                     className="absolute right-0 top-13 z-20 w-60 rounded-[12px] border border-border bg-surface p-2 shadow-[0_12px_32px_rgba(0,0,0,0.5)]"
                 >
-                    <div className="mb-1.5 border-b border-line px-3 pb-3 pt-2.5">
-                        <div className="wrap-break-word font-bold">{user.name}</div>
-                        <div className="wrap-break-word text-[13px] text-muted">{user.email}</div>
+                    <div className="mb-1.5 flex items-start gap-2 border-b border-line pb-3 pl-3 pt-2.5">
+                        <div className="min-w-0 flex-1">
+                            <div className="wrap-break-word font-bold">{user.name}</div>
+                            <div className="wrap-break-word text-[13px] text-muted">{user.email}</div>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={dismiss}
+                            aria-label="Close menu"
+                            className="-mt-2 flex size-11 flex-none cursor-pointer items-center justify-center rounded-lg text-muted"
+                        >
+                            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                                <path d="M6 6l12 12M18 6L6 18" />
+                            </svg>
+                        </button>
                     </div>
                     <Link role="menuitem" href="/my-events?tab=hosting" onClick={close} className={`${ITEM_CLASSES} text-text`}>
                         Events I&apos;m hosting
