@@ -1,7 +1,9 @@
 import { Suspense } from "react";
 import CalendarSearch, { CalendarSearchWithValues } from "@/components/calendar/CalendarSearch";
+import CalendarFiltersSkeleton from "@/components/calendar/CalendarFiltersSkeleton";
 import CalendarSidebar from "@/components/calendar/CalendarSidebar";
 import CalendarTimeline from "@/components/calendar/CalendarTimeline";
+import CalendarTimelineSkeleton from "@/components/calendar/CalendarTimelineSkeleton";
 import { getCalendarEvents, type EventRecord } from "@/lib/data/events";
 import { parseCalendarQuery, type CalendarSearchParams } from "@/lib/url/calendar-query";
 
@@ -34,11 +36,11 @@ export default function CalendarPage({ searchParams }: { searchParams: Promise<C
             </section>
 
             <section className="mx-auto flex max-w-300 flex-wrap items-start gap-10 px-6 pb-24">
-                <Suspense fallback={null}>
+                <Suspense fallback={<CalendarFiltersSkeleton />}>
                     <CalendarSidebar search={search} />
                 </Suspense>
                 <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-12">
-                    <Suspense fallback={<p className="text-muted">Loading events...</p>}>
+                    <Suspense fallback={<CalendarTimelineSkeleton />}>
                         <CalendarTimeline search={search} events={events} />
                     </Suspense>
                 </div>
