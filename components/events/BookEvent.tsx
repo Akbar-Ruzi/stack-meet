@@ -5,6 +5,7 @@ import BookingAccount from "@/components/events/BookingAccount";
 import BookingField from "@/components/events/BookingField";
 import BookingSuccess from "@/components/events/BookingSuccess";
 import { FieldError } from "@/components/ui/Input";
+import Spinner from "@/components/ui/Spinner";
 import { useBookingForm, type BookingAccountUser } from "@/hooks/useBookingForm";
 
 // account is the signed-in visitor, or null for a guest, who fills in the fields.
@@ -59,7 +60,13 @@ const BookEvent = ({ account }: { account: BookingAccountUser | null }) => {
                 <div role="alert">
                     {formError && <div className="mb-2.5"><FieldError message={formError} /></div>}
                 </div>
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {/* aria-disabled instead of disabled keeps focus on the button; the hook ignores a second click. */}
+                <Button
+                    type="submit"
+                    aria-disabled={isSubmitting}
+                    className="w-full gap-2.5 aria-disabled:cursor-not-allowed aria-disabled:opacity-70"
+                >
+                    {isSubmitting && <Spinner size={16} />}
                     {isSubmitting ? "Reserving…" : "Reserve my spot"}
                 </Button>
             </div>
