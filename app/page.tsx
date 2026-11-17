@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Suspense } from "react";
 import Hero from "@/components/home/Hero";
 import HostBox from "@/components/home/HostBox";
 import NextUp from "@/components/home/NextUp";
@@ -13,9 +12,7 @@ export default function Page({ searchParams }: { searchParams: Promise<HomeSearc
             <Hero search={query} />
 
             <section id="events" className="mx-auto max-w-300 scroll-mt-24 max-[641px]:scroll-mt-36 px-6 pb-18 pt-6">
-                <Suspense fallback={<p className="text-muted">Loading events...</p>}>
-                    <NextUp query={query} />
-                </Suspense>
+                <NextUp query={query} />
 
                 <div className="mt-7">
                     <Link href="/calendar" className="inline-block py-3 font-mono text-sm text-accent">
