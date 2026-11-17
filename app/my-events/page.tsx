@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import MyEventsContent from "@/components/my-events/MyEventsContent";
+import MyEventsSkeleton from "@/components/my-events/MyEventsSkeleton";
 import type { MyEventsSearchParams } from "@/lib/url/my-events-query";
 
 export default function MyEventsPage({ searchParams }: { searchParams: Promise<MyEventsSearchParams> }) {
@@ -13,7 +14,7 @@ export default function MyEventsPage({ searchParams }: { searchParams: Promise<M
                     </h1>
                     <p className="mt-2.5 text-[17px] text-muted">Events you&apos;re hosting and spots you&apos;ve reserved.</p>
                 </div>
-                <Suspense fallback={null}>
+                <Suspense fallback={<MyEventsSkeleton />}>
                     <MyEventsContent searchParams={searchParams} />
                 </Suspense>
             </section>
