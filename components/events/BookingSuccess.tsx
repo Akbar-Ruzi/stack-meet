@@ -1,24 +1,85 @@
-type BookingSuccessProps = {
-    name: string;
-    onlineUrl?: string;
+"use client";
+
+import Link from "next/link";
+import { useFocusOnMount } from "@/hooks/useFocusOnMount";
+
+export type BookedEventDetails = {
+    title: string;
+    date: string; // "Saturday, November 14, 2026"
+    time: string;
+    place: string; // "Online", or the venue and city
 };
 
-// Replaces the booking form once a spot is reserved.
-const BookingSuccess = ({ name, onlineUrl }: BookingSuccessProps) => (
-    <div role="status" className="mt-6">
-        <p className="font-mono text-[13px] text-accent">✓ Spot reserved</p>
-        <p className="mt-2 text-[15px] text-text">You&apos;re booked, {name}. See you there.</p>
+type BookingSuccessProps = {
+    event: BookedEventDetails;
+    name: string;
+    email: string;
+    onlineUrl?: string;
+    signedIn: boolean;
+    moveFocus?: boolean; // true right after booking, so the box is announced and focused
+};
 
-        {onlineUrl && (
-            <div className="mt-4.5 border-t border-line pt-4">
-                <p className="font-mono text-xs text-muted">Join online</p>
-                <a href={onlineUrl} target="_blank" rel="noopener noreferrer" className="mt-1 block text-[15px] text-accent underline">
-                    {onlineUrl}
-                </a>
-                <p className="mt-1.5 text-sm text-muted">Save this link. We can&apos;t email it to you.</p>
+// The "You're in!" box, which replaces the booking card's content once the visitor has a spot.
+const BookingSuccess = ({ event, name, email, onlineUrl, signedIn, moveFocus = true }: BookingSuccessProps) => {
+    const ref = useFocusOnMount<HTMLDivElement>(moveFocus);
+
+    return (
+        <div
+            ref={ref}
+            role="status"
+            tabIndex={-1}
+            className="rounded-[14px] border border-accent bg-accent/6 p-5.5 outline-none"
+        >
+            <div className="flex items-center gap-3">
+                <span aria-hidden="true" className="flex size-9 flex-none items-center justify-center rounded-full bg-accent text-on-accent">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M5 12l5 5L20 7" />
+                    </svg>
+                </span>
+                <div className="min-w-0">
+                    <h3 className="text-2xl">You&rsquo;re in!</h3>
+                    <p className="mt-0.5 text-[15px] text-body">Your spot is reserved.</p>
+                </div>
             </div>
-        )}
-    </div>
-);
+
+            <p className="mt-4 text-[17px] font-bold">{event.title}</p>
+            <p className="mt-1.5 text-[15px] leading-normal text-muted">
+                {event.date}
+                <br />
+                {event.time}
+            </p>
+
+            {/* Each label sits above its value, as the design shows it. */}
+            <dl className="mt-4.5 border-t border-line pt-4 text-sm">
+                <dt className="font-mono text-xs text-muted">booked as</dt>
+                <dd className="mt-1 min-w-0 wrap-anywhere">
+                    {name}
+                    <span className="block text-muted">{email}</span>
+                </dd>
+                <dt className="mt-3.5 font-mono text-xs text-muted">where</dt>
+                <dd className="mt-1 min-w-0 wrap-anywhere">
+                    {event.place}
+                    {onlineUrl && (
+                        <>
+                            <a href={onlineUrl} target="_blank" rel="noopener noreferrer" className="mt-1 block text-accent underline">
+                                {onlineUrl}
+                            </a>
+                            <span className="mt-1 block text-muted">Save this link. We can&apos;t email it to you.</span>
+                        </>
+                    )}
+                </dd>
+            </dl>
+
+            {signedIn && (
+                <Link
+                    href="/my-events?tab=booked"
+                    className="mt-4 flex min-h-12 w-full items-center justify-center rounded-[10px] border border-border text-[15px] font-bold text-text"
+                >
+                    View my bookings
+                </Link>
+            )}
+        </div>
+    );
+};
 
 export default BookingSuccess;

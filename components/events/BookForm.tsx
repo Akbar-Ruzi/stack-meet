@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 import BookEvent from "@/components/events/BookEvent";
 import ShareLink from "@/components/events/ShareLink";
-import { formatBookedCount, formatLongDate, getBookingPlace } from "@/lib/events/display";
+import { formatBookedCount, formatLongDate, getBookingPlace, getConfirmationPlace } from "@/lib/events/display";
 import type { BookingAccountUser } from "@/hooks/useBookingForm";
+import type { ExistingBooking } from "@/lib/data/bookings";
 import type { EventFields } from "@/types/event.types";
 
 const Icon = ({ children }: { children: ReactNode }) => (
@@ -12,24 +13,26 @@ const Icon = ({ children }: { children: ReactNode }) => (
 );
 
 type BookFormProps = {
-    event: Pick<EventFields, "date" | "time" | "mode" | "venue" | "location">;
+    event: Pick<EventFields, "title" | "date" | "time" | "mode" | "venue" | "location">;
     bookingCount: number | null; // null when the count couldn't be loaded
     account: BookingAccountUser | null; // the signed-in visitor, or null for a guest
+    existingBooking: ExistingBooking | null; // the signed-in visitor's spot at this event, if they have one
 };
 
-const BookForm = ({ event, bookingCount, account }: BookFormProps) => {
-    const bookedLine = bookingCount === null ? null : formatBookedCount(bookingCount);
+const BookForm = ({ event, bookingCount, account, existingBooking }: BookFormProps) => {
+    const longDate = formatLongDate(event.date);
 
-    return (
-        <aside className="min-w-0 flex-[1_1_320px] max-w-100 rounded-[18px] border border-border bg-surface p-7 wrap-anywhere">
+    // Rendered here on the server and handed to BookEvent, which hides it once the visitor has a spot.
+    const header = (
+        <>
             <p className="font-mono text-[13px] text-accent">$ reserve --spot</p>
             <h2 className="mt-2 text-[26px]">Book your spot</h2>
-    
+
             <dl className="mt-5.5 grid grid-cols-[24px_1fr] items-center gap-x-3 gap-y-3.5 text-[15px]">
                 <dt aria-label="Date">
                     <Icon><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 10h18" /></Icon>
                 </dt>
-                <dd>{formatLongDate(event.date)}</dd>
+                <dd>{longDate}</dd>
                 <dt aria-label="Time">
                     <Icon><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></Icon>
                 </dt>
@@ -43,16 +46,19 @@ const BookForm = ({ event, bookingCount, account }: BookFormProps) => {
                 </dt>
                 <dd>{getBookingPlace(event)}</dd>
             </dl>
-    
-            <BookEvent account={account} />
-    
-            {/* Signed in, the line shows only the count, so it's left out when the count couldn't be loaded. */}
-            {(!account || bookedLine) && (
-                <p className="mt-3.5 text-sm text-muted">
-                    {account ? bookedLine : ["No account needed", bookedLine].filter(Boolean).join(" · ")}
-                </p>
-            )}
-    
+        </>
+    );
+
+    return (
+        <aside className="min-w-0 flex-[1_1_320px] max-w-100 rounded-[18px] border border-border bg-surface p-7 wrap-anywhere">
+            <BookEvent
+                account={account}
+                existingBooking={existingBooking}
+                header={header}
+                event={{ title: event.title, date: longDate, time: event.time, place: getConfirmationPlace(event) }}
+                bookedLine={bookingCount === null ? null : formatBookedCount(bookingCount)}
+            />
+
             <div className="mt-5 flex flex-wrap gap-4 border-t border-line pt-4.5 font-mono text-[13px]">
                 <ShareLink />
             </div>

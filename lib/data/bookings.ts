@@ -27,6 +27,23 @@ export async function hasUserBookedEvent(userId: string, eventId: string): Promi
     return (await Booking.exists({ userId, eventId })) !== null;
 }
 
+export type ExistingBooking = { name: string; email: string; onlineUrl?: string };
+
+// The signed-in user's booking for this event, with the join link for online and hybrid events,
+// so a returning visitor sees the "You're in!" box. null when they have no spot here.
+export async function getUserBooking(userId: string, eventId: string): Promise<ExistingBooking | null> {
+    await connectDB();
+    const [booking, event] = await Promise.all([
+        Booking.findOne({ userId, eventId }).select("name email").lean<{ name: string; email: string }>(),
+        // onlineUrl is left out of event reads by default, so it's asked for explicitly here.
+        Event.findById(eventId).select("+onlineUrl mode").lean<{ mode: string; onlineUrl?: string }>(),
+    ]);
+    if (!booking) return null;
+
+    const onlineUrl = event && event.mode !== "in-person" ? event.onlineUrl : undefined;
+    return { name: booking.name, email: booking.email, onlineUrl };
+}
+
 // How many upcoming events this email has booked, not counting `exceptEventId`.
 // Past events don't count, and a canceled booking is deleted, so it no longer counts either.
 export async function countUpcomingBookingsByEmail(email: string, exceptEventId: string): Promise<number> {

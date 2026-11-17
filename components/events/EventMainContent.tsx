@@ -6,7 +6,7 @@ import EventContent from "@/components/events/EventContent";
 import BookForm from "@/components/events/BookForm";
 import { BookingProvider } from "@/context/booking-context";
 import { getEventBySlug } from "@/lib/data/events";
-import { getBookingCount } from "@/lib/data/bookings";
+import { getBookingCount, getUserBooking } from "@/lib/data/bookings";
 import { auth } from "@/auth";
 
 // The event itself: header, cover, About, agenda, organizer and the booking card.
@@ -16,13 +16,19 @@ const EventMainContent = async ({ slug }: { slug: Promise<string> }): Promise<Re
 
     if (!event || !event.description || !event.image) return notFound();
 
+    const sessionPromise = auth();
     // null means the count is unknown, so the page never claims "0 people have booked" after a failure.
-    const [bookingCount, session] = await Promise.all([
+    const [bookingCount, session, existingBooking] = await Promise.all([
         getBookingCount(event._id).catch((error): number | null => {
             console.error("Loading the booking count failed:", error);
             return null;
         }),
-        auth(),
+        sessionPromise,
+        // If this lookup fails, the form shows and the server still turns down a second booking.
+        sessionPromise.then((s) => (s?.user?.id ? getUserBooking(s.user.id, event._id) : null)).catch((error): null => {
+            console.error("Loading the visitor's booking failed:", error);
+            return null;
+        }),
     ]);
     const account = session?.user?.email
         ? { name: session.user.name ?? "", email: session.user.email }
@@ -35,7 +41,7 @@ const EventMainContent = async ({ slug }: { slug: Promise<string> }): Promise<Re
                 <div className="details">
                     <EventContent event={event} />
                     <BookingProvider value={{ eventId: event._id, slug: event.slug }}>
-                        <BookForm event={event} bookingCount={bookingCount} account={account} />
+                        <BookForm event={event} bookingCount={bookingCount} account={account} existingBooking={existingBooking} />
                     </BookingProvider>
                 </div>
             </div>

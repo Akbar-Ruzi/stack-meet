@@ -80,3 +80,9 @@ export function getEventPlace({ mode, location }: Pick<EventFields, "mode" | "lo
 export function formatBookedCount(count: number) {
     return `${count} ${count === 1 ? "person has" : "people have"} booked`;
 }
+
+// "where" in the "You're in!" box: "Online", or the venue and city for in-person and hybrid events.
+export function getConfirmationPlace({ mode, venue, location }: Pick<EventFields, "mode" | "venue" | "location">) {
+    if (mode === "online") return "Online";
+    return [venue, location].filter(Boolean).join(", ");
+}
