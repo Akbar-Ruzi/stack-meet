@@ -1,7 +1,9 @@
 import { Suspense } from "react";
 
 import EventMainContent from "@/components/events/EventMainContent";
+import EventMainContentSkeleton from "@/components/events/EventMainContentSkeleton";
 import SimilarEventsSection from "@/components/events/SimilarEventsSection";
+import SimilarEventsSkeleton from "@/components/events/SimilarEventsSkeleton";
 
 type EventPageProps = {
     params: Promise<{ slug: string }>;
@@ -13,11 +15,11 @@ const EventDetailsPage = ({ params }: EventPageProps) => {
 
     return (
         <section id="event" data-full-width>
-            <Suspense fallback={<div>Loading event...</div>}>
+            <Suspense fallback={<EventMainContentSkeleton />}>
                 <EventMainContent slug={slug} />
             </Suspense>
             <div className="mx-auto max-w-300 px-6 pb-10">
-                <Suspense fallback={null}>
+                <Suspense fallback={<SimilarEventsSkeleton />}>
                     <SimilarEventsSection slug={slug} />
                 </Suspense>
             </div>

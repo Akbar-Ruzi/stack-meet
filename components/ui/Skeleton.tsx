@@ -3,6 +3,8 @@ const SHAPES = {
     block: "rounded-[6px]",
     pill: "rounded-full",
     tile: "rounded-[12px]",
+    field: "rounded-[10px]", // inputs, buttons and big title lines
+
     cover: "rounded-2xl",
 };
 
