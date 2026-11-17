@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import AuthPanel from "@/components/auth/AuthPanel";
+import AuthPanelSkeleton from "@/components/auth/AuthPanelSkeleton";
 import { isFromCreateEvent, parseAuthMode, parseNextPath, type AuthSearchParams } from "@/lib/url/auth-query";
 
 type SignInPageProps = {
@@ -37,7 +38,7 @@ export default function SignInPage({ searchParams }: SignInPageProps) {
             data-full-width
             className="flex flex-1 items-center justify-center px-6 pb-24 pt-18"
         >
-            <Suspense fallback={null}>
+            <Suspense fallback={<AuthPanelSkeleton />}>
                 <SignInContent searchParams={searchParams} />
             </Suspense>
         </div>
