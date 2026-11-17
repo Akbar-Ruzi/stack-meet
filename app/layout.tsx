@@ -6,7 +6,6 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AppToaster from "@/components/ui/Toaster";
 import PendingToast from "@/components/ui/PendingToast";
-import { Toaster } from 'react-hot-toast';
 import { NavbarLockProvider } from "@/context/navbar-lock-context";
 import { auth } from "@/auth";
 
@@ -65,32 +64,6 @@ export default function RootLayout({
           <AppToaster />
           <PendingToast />
         </NavbarLockProvider>
-        <Toaster
-          position="top-center"
-          gutter={10}
-          toastOptions={{
-            duration: 3200,
-            style: {
-              background: '#f8fafc',
-              color: '#111827',
-              border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: 600,
-            },
-            success: {
-              iconTheme: { primary: '#59deca', secondary: '#0d161a' },
-              style: { border: '1px solid rgba(89, 222, 202, 0.45)' },
-            },
-            error: {
-              iconTheme: { primary: '#f87171', secondary: '#0d161a' },
-              style: {
-                border: '1px solid rgba(248, 113, 113, 0.45)',
-                color: '#f87171',
-              },
-            },
-          }}
-        />
       </body>
     </html>
   );
