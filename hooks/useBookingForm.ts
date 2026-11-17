@@ -9,14 +9,13 @@ import { bookingSchema, toBookingErrors, type BookingErrors } from "@/lib/bookin
 
 type BookingFormValues = { name: string; email: string; phone: string };
 
-// The signed-in visitor's name and email, which a signed-in booking uses instead of the form fields.
+// The signed-in visitor's name and email, shown in place of the form fields.
 export type BookingAccountUser = { name: string; email: string };
 
 const EMPTY_VALUES: BookingFormValues = { name: "", email: "", phone: "" };
 const BOOKING_FAILED_MESSAGE = "Couldn't reserve your spot. Please try again.";
 
 // A failed booking keeps the form and returns formError, shown above the Reserve button.
-// With an account there are no fields, so a problem with the account's details also goes to formError.
 export function useBookingForm(account: BookingAccountUser | null) {
     const { eventId, slug } = useBookingContext();
     const router = useRouter();
@@ -37,22 +36,22 @@ export function useBookingForm(account: BookingAccountUser | null) {
         if (isSubmitting) return;
         setFormError(null);
 
-        const input = account ? { ...account, phone: "" } : values;
-        const result = bookingSchema.safeParse(input);
-        if (!result.success) {
-            if (account) setFormError(result.error.issues[0].message);
-            else setErrors(toBookingErrors(result.error));
-            return;
+        // Signed in, there are no fields: the server takes the details from the account.
+        let guestDetails: BookingFormValues | null = null;
+        if (!account) {
+            const result = bookingSchema.safeParse(values);
+            setErrors(result.success ? {} : toBookingErrors(result.error));
+            if (!result.success) return;
+            guestDetails = result.data;
         }
-        setErrors({});
 
         setIsSubmitting(true);
         try {
-            const booking = await createBooking({ eventId, slug, ...input });
+            const booking = await createBooking({ eventId, slug, ...guestDetails });
 
             if (booking.success) {
                 setOnlineUrl(booking.onlineUrl);
-                setBookedName(result.data.name);
+                setBookedName(account?.name ?? guestDetails?.name ?? "");
                 posthog.capture("event_booked", { eventId, slug });
                 router.refresh(); // Reloads the booked count from the server.
             } else {

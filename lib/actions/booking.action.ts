@@ -4,17 +4,19 @@ import connectDB from "@/lib/data/mongodb";
 import Booking from "@/database/booking.model";
 import Event from "@/database/event.model";
 import { bookingSchema } from "@/lib/bookings/booking-zod-schema";
-import { countUpcomingBookingsByEmail, getBookingCount } from "@/lib/data/bookings";
+import { countUpcomingBookingsByEmail, getBookingCount, hasUserBookedEvent } from "@/lib/data/bookings";
+import { getBookingContact, type BookingContact } from "@/lib/data/users";
 
 // Bookings one event can take.
 const MAX_BOOKINGS_PER_EVENT = 200;
 // Different upcoming events one email can book at once.
 const MAX_UPCOMING_BOOKINGS_PER_EMAIL = 3;
 
+// name, email and phone are only read for guests. A signed-in user's booking uses their account's details.
 type CreateBookingParams = {
     eventId: string;
     slug: string;
-    email: string;
+    email?: string;
     name?: string;
     phone?: string;
 }
@@ -27,12 +29,29 @@ type CreateBookingResult = {
 
 export const createBooking = async ({eventId, email, name, phone}: CreateBookingParams) => {
     try {
-        // The same rules as the form. The schema also trims the values and lowercases the email.
-        const parsed = bookingSchema.safeParse({ name, email, phone });
-        if (!parsed.success) {
-            return {success: false, message: parsed.error.issues[0].message} satisfies CreateBookingResult;
+        const session = await auth();
+        const userId = session?.user?.id;
+
+        let contact: BookingContact;
+        if (userId) {
+            // Taken from the account, so a booking can't be saved to it under someone else's email.
+            const account = await getBookingContact(userId);
+            if (!account) {
+                return {success: false, message: 'Your account could not be found. Please sign in again.'} satisfies CreateBookingResult;
+            }
+            if (await hasUserBookedEvent(userId, eventId)) {
+                return {success: false, message: 'You already have a spot at this event.'} satisfies CreateBookingResult;
+            }
+            contact = account;
+        } else {
+            // The same rules as the form. The schema also trims the values and lowercases the email.
+            const parsed = bookingSchema.safeParse({ name, email, phone });
+            if (!parsed.success) {
+                return {success: false, message: parsed.error.issues[0].message} satisfies CreateBookingResult;
+            }
+            contact = { ...parsed.data, phone: parsed.data.phone || undefined };
         }
-        const { name: cleanName, email: normalizedEmail, phone: cleanPhone } = parsed.data;
+        const { name: cleanName, email: normalizedEmail, phone: cleanPhone } = contact;
 
         await connectDB();
 
@@ -49,14 +68,12 @@ export const createBooking = async ({eventId, email, name, phone}: CreateBooking
             } satisfies CreateBookingResult;
         }
 
-        const session = await auth();
-
         await Booking.create({
             eventId,
-            userId: session?.user?.id, // Guests have no session, so this stays empty
+            userId, // Guests have no session, so this stays empty
             name: cleanName,
             email: normalizedEmail,
-            phone: cleanPhone || undefined,
+            phone: cleanPhone,
         });
         // onlineUrl is left out of event reads by default, so it's asked for explicitly here.
         const event = await Event.findById(eventId).select("+onlineUrl mode").lean<{ mode: string; onlineUrl?: string }>();
