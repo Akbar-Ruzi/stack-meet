@@ -7,6 +7,7 @@ import BookForm from "@/components/events/BookForm";
 import { BookingProvider } from "@/context/booking-context";
 import { getEventBySlug } from "@/lib/data/events";
 import { getBookingCount } from "@/lib/data/bookings";
+import { auth } from "@/auth";
 
 // The event itself: header, cover, About, agenda, organizer and the booking card.
 const EventMainContent = async ({ slug }: { slug: Promise<string> }): Promise<ReactElement> => {
@@ -16,10 +17,16 @@ const EventMainContent = async ({ slug }: { slug: Promise<string> }): Promise<Re
     if (!event || !event.description || !event.image) return notFound();
 
     // null means the count is unknown, so the page never claims "0 people have booked" after a failure.
-    const bookingCount = await getBookingCount(event._id).catch((error): number | null => {
-        console.error("Loading the booking count failed:", error);
-        return null;
-    });
+    const [bookingCount, session] = await Promise.all([
+        getBookingCount(event._id).catch((error): number | null => {
+            console.error("Loading the booking count failed:", error);
+            return null;
+        }),
+        auth(),
+    ]);
+    const account = session?.user?.email
+        ? { name: session.user.name ?? "", email: session.user.email }
+        : null;
 
     return (
         <>
@@ -28,7 +35,7 @@ const EventMainContent = async ({ slug }: { slug: Promise<string> }): Promise<Re
                 <div className="details">
                     <EventContent event={event} />
                     <BookingProvider value={{ eventId: event._id, slug: event.slug }}>
-                        <BookForm event={event} bookingCount={bookingCount} />
+                        <BookForm event={event} bookingCount={bookingCount} account={account} />
                     </BookingProvider>
                 </div>
             </div>

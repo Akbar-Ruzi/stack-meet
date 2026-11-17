@@ -9,18 +9,22 @@ import { bookingSchema, toBookingErrors, type BookingErrors } from "@/lib/bookin
 
 type BookingFormValues = { name: string; email: string; phone: string };
 
+// The signed-in visitor's name and email, which a signed-in booking uses instead of the form fields.
+export type BookingAccountUser = { name: string; email: string };
+
 const EMPTY_VALUES: BookingFormValues = { name: "", email: "", phone: "" };
 const BOOKING_FAILED_MESSAGE = "Couldn't reserve your spot. Please try again.";
 
 // A failed booking keeps the form and returns formError, shown above the Reserve button.
-export function useBookingForm() {
+// With an account there are no fields, so a problem with the account's details also goes to formError.
+export function useBookingForm(account: BookingAccountUser | null) {
     const { eventId, slug } = useBookingContext();
     const router = useRouter();
     const [values, setValues] = useState(EMPTY_VALUES);
     const [errors, setErrors] = useState<BookingErrors>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
-    const [submitted, setSubmitted] = useState(false);
+    const [bookedName, setBookedName] = useState<string | null>(null);
     const [onlineUrl, setOnlineUrl] = useState<string>();
 
     const setValue = (field: keyof BookingFormValues, value: string) => {
@@ -33,17 +37,22 @@ export function useBookingForm() {
         if (isSubmitting) return;
         setFormError(null);
 
-        const result = bookingSchema.safeParse(values);
-        setErrors(result.success ? {} : toBookingErrors(result.error));
-        if (!result.success) return;
+        const input = account ? { ...account, phone: "" } : values;
+        const result = bookingSchema.safeParse(input);
+        if (!result.success) {
+            if (account) setFormError(result.error.issues[0].message);
+            else setErrors(toBookingErrors(result.error));
+            return;
+        }
+        setErrors({});
 
         setIsSubmitting(true);
         try {
-            const booking = await createBooking({ eventId, slug, ...values });
+            const booking = await createBooking({ eventId, slug, ...input });
 
             if (booking.success) {
                 setOnlineUrl(booking.onlineUrl);
-                setSubmitted(true);
+                setBookedName(result.data.name);
                 posthog.capture("event_booked", { eventId, slug });
                 router.refresh(); // Reloads the booked count from the server.
             } else {
@@ -58,5 +67,5 @@ export function useBookingForm() {
         }
     };
 
-    return { values, errors, isSubmitting, formError, submitted, onlineUrl, setValue, handleSubmit };
+    return { values, errors, isSubmitting, formError, bookedName, onlineUrl, setValue, handleSubmit };
 }

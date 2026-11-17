@@ -75,3 +75,8 @@ export function getBookingPlace({ mode, venue, location }: Pick<EventFields, "mo
 export function getEventPlace({ mode, location }: Pick<EventFields, "mode" | "location">) {
     return mode === "online" ? "Online" : location ?? "";
 }
+
+// "1 person has booked" / "N people have booked", under the booking card.
+export function formatBookedCount(count: number) {
+    return `${count} ${count === 1 ? "person has" : "people have"} booked`;
+}
