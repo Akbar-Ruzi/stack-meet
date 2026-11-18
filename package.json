@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "email:test": "node --conditions=react-server --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file=.env scripts/send-test-email.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.5",
@@ -22,6 +23,7 @@
     "react": "19.2.9",
     "react-dom": "19.2.9",
     "react-hook-form": "^7.91.0",
+    "resend": "^6.38.1",
     "server-only": "^0.0.1",
     "sonner": "2.0.8",
     "zod": "^4.6.7"
