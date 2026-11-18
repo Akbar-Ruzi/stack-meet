@@ -5,7 +5,7 @@ import Booking from "@/database/booking.model";
 import Event from "@/database/event.model";
 import { bookingSchema } from "@/lib/bookings/booking-zod-schema";
 import { countUpcomingBookingsByEmail, getBookingCount, hasUserBookedEvent } from "@/lib/data/bookings";
-import { isEventCreatedBy } from "@/lib/data/events";
+import { hasEventEnded, isEventCreatedBy } from "@/lib/data/events";
 import { getBookingContact, type BookingContact } from "@/lib/data/users";
 
 // Bookings one event can take.
@@ -32,6 +32,11 @@ export const createBooking = async ({eventId, email, name, phone}: CreateBooking
     try {
         const session = await auth();
         const userId = session?.user?.id;
+
+        // Checked here too, not only on the page, so a page opened before the event ended can't book it.
+        if (await hasEventEnded(eventId)) {
+            return {success: false, message: 'Booking is closed for this event.'} satisfies CreateBookingResult;
+        }
 
         let contact: BookingContact;
         if (userId) {

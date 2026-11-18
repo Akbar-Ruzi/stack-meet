@@ -79,3 +79,8 @@ export function getEventPlace({ mode, location }: Pick<EventFields, "mode" | "lo
 export function formatBookedCount(count: number) {
     return `${count} ${count === 1 ? "person has" : "people have"} booked`;
 }
+
+// "1 person booked" / "N people booked", under the card once the event has ended.
+export function formatPastBookedCount(count: number) {
+    return `${count} ${count === 1 ? "person" : "people"} booked`;
+}

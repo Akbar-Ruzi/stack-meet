@@ -104,6 +104,12 @@ export async function getOnlineUrl(eventId: string): Promise<string | undefined>
     return doc && doc.mode !== "in-person" ? doc.onlineUrl : undefined;
 }
 
+// Whether the event's date is before today, the same rule as My events and the edit permission.
+export async function hasEventEnded(eventId: string): Promise<boolean> {
+    await connectDB();
+    return (await Event.exists({ _id: eventId, date: { $lt: today() } })) !== null;
+}
+
 // Whether this user created the event. Organizers can't book their own events.
 export async function isEventCreatedBy(eventId: string, userId: string): Promise<boolean> {
     await connectDB();

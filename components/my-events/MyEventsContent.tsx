@@ -5,7 +5,7 @@ import HostingList from "@/components/my-events/HostingList";
 import BookedList from "@/components/my-events/BookedList";
 import { countEventsByUser } from "@/lib/data/events";
 import { countUpcomingBookingsByUser } from "@/lib/data/bookings";
-import { getHostedEvents, getUpcomingBookings } from "@/lib/data/my-events";
+import { getHostedEvents, getPastBookings, getUpcomingBookings } from "@/lib/data/my-events";
 import { parseMyEventsTab, type MyEventsSearchParams } from "@/lib/url/my-events-query";
 
 // A count that fails to load is left out, so a failure never reads as "0".
@@ -28,7 +28,7 @@ const MyEventsContent = async ({ searchParams }: { searchParams: Promise<MyEvent
         orNull(countEventsByUser(userId)),
         orNull(countUpcomingBookingsByUser(userId)),
         tab === "hosting" ? getHostedEvents(userId) : null,
-        tab === "booked" ? getUpcomingBookings(userId) : null,
+        tab === "booked" ? Promise.all([getUpcomingBookings(userId), getPastBookings(userId)]) : null,
     ]);
 
     return (
@@ -42,7 +42,7 @@ const MyEventsContent = async ({ searchParams }: { searchParams: Promise<MyEvent
             />
             <div role="tabpanel" id={`my-events-panel-${tab}`} aria-labelledby={`my-events-tab-${tab}`}>
                 {hostedEvents && <HostingList events={hostedEvents} />}
-                {bookings && <BookedList bookings={bookings} />}
+                {bookings && <BookedList upcoming={bookings[0]} past={bookings[1]} />}
             </div>
         </>
     );

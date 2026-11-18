@@ -47,9 +47,14 @@ export type BookedEvent = Pick<EventFields, "title" | "slug" | "date" | "time" |
 
 type BookingDoc = { _id: { toString(): string }; eventId: { toString(): string }; createdAt: Date };
 
-// This user's bookings at upcoming events, soonest event first. Guest bookings made with the
-// same email aren't included, because emails aren't verified yet.
-export async function getUpcomingBookings(userId: string): Promise<BookedEvent[]> {
+// This user's bookings at upcoming events, soonest event first.
+export const getUpcomingBookings = (userId: string) => getBookingsByEventDate(userId, "upcoming");
+
+// This user's bookings at events that have ended, most recent first. Removed ones are left out.
+export const getPastBookings = (userId: string) => getBookingsByEventDate(userId, "past");
+
+// Guest bookings made with the same email aren't included, because emails aren't verified yet.
+async function getBookingsByEventDate(userId: string, when: "upcoming" | "past"): Promise<BookedEvent[]> {
     await connectDB();
     const bookings = await Booking.find({ userId, hiddenByUser: { $ne: true } })
         .select("eventId createdAt")
@@ -57,9 +62,13 @@ export async function getUpcomingBookings(userId: string): Promise<BookedEvent[]
         .lean<BookingDoc[]>();
     if (bookings.length === 0) return [];
 
-    const events = await Event.find({ _id: { $in: bookings.map((booking) => booking.eventId) }, date: { $gte: today() } })
+    const upcoming = when === "upcoming";
+    const events = await Event.find({
+        _id: { $in: bookings.map((booking) => booking.eventId) },
+        date: upcoming ? { $gte: today() } : { $lt: today() },
+    })
         .select("title slug date time mode location")
-        .sort({ date: 1, time: 1 })
+        .sort(upcoming ? { date: 1, time: 1 } : { date: -1, time: -1 })
         .lean<HostedEventDoc[]>();
 
     return events.flatMap(({ _id, ...event }) =>

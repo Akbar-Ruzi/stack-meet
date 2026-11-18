@@ -4,7 +4,8 @@ import HostingActions from "@/components/events/HostingActions";
 import ShareLink from "@/components/events/ShareLink";
 import SignInToBook from "@/components/events/SignInToBook";
 import JoinOnlineLink from "@/components/events/JoinOnlineLink";
-import { formatBookedCount, formatLongDate, getVenuePlace } from "@/lib/events/display";
+import EventEndedNote from "@/components/events/EventEndedNote";
+import { formatBookedCount, formatLongDate, formatPastBookedCount, getVenuePlace } from "@/lib/events/display";
 import type { BookingAccountUser } from "@/hooks/useBookingForm";
 import type { ExistingBooking } from "@/lib/data/bookings";
 import type { EventFields } from "@/types/event.types";
@@ -22,18 +23,25 @@ type BookFormProps = {
     existingBooking: ExistingBooking | null; // the signed-in visitor's spot at this event, if they have one
     // Set when the signed-in visitor created this event, who can't book it. onlineUrl is sent only to them.
     hosting: { canEdit: boolean; onlineUrl?: string } | null;
+    ended: boolean; // the event's date has passed, which wins over every other card state
 };
 
-const BookForm = ({ event, bookingCount, account, existingBooking, hosting }: BookFormProps) => {
+const BookForm = ({ event, bookingCount, account, existingBooking, hosting, ended }: BookFormProps) => {
     const longDate = formatLongDate(event.date);
     const venuePlace = getVenuePlace(event);
     const online = event.mode !== "in-person";
 
+    const heading = ended
+        ? { prompt: "$ event --ended", title: hosting ? "You hosted this event" : "This event has ended" }
+        : hosting
+          ? { prompt: "$ host --event", title: "You’re hosting this event" }
+          : { prompt: "$ reserve --spot", title: "Book your spot" };
+
     // Rendered here on the server and handed to BookEvent, which hides it once the visitor has a spot.
     const header = (
         <>
-            <p className="font-mono text-[13px] text-accent">{hosting ? "$ host --event" : "$ reserve --spot"}</p>
-            <h2 className="mt-2 text-[26px]">{hosting ? "You’re hosting this event" : "Book your spot"}</h2>
+            <p className="font-mono text-[13px] text-accent">{heading.prompt}</p>
+            <h2 className="mt-2 text-[26px]">{heading.title}</h2>
 
             <dl className="mt-5.5 grid grid-cols-[24px_1fr] items-center gap-x-3 gap-y-3.5 text-[15px]">
                 <dt aria-label="Date">
@@ -71,7 +79,14 @@ const BookForm = ({ event, bookingCount, account, existingBooking, hosting }: Bo
 
     return (
         <aside className="min-w-0 flex-[1_1_320px] max-w-100 rounded-[18px] border border-border bg-surface p-7 wrap-anywhere">
-            {hosting ? (
+            {ended ? (
+                <>
+                    {header}
+                    <EventEndedNote isOrganizer={hosting !== null} hadSpot={existingBooking !== null} />
+                    {hosting && <HostingActions slug={event.slug} canEdit={false} />}
+                    {bookingCount !== null && <p className="mt-3.5 text-sm text-muted">{formatPastBookedCount(bookingCount)}</p>}
+                </>
+            ) : hosting ? (
                 <>
                     {header}
                     <HostingActions slug={event.slug} canEdit={hosting.canEdit} />
@@ -93,9 +108,12 @@ const BookForm = ({ event, bookingCount, account, existingBooking, hosting }: Bo
                 </>
             )}
 
-            <div className="mt-5 flex flex-wrap gap-4 border-t border-line pt-4.5 font-mono text-[13px]">
-                <ShareLink />
-            </div>
+            {/* No share link once the event is over. */}
+            {!ended && (
+                <div className="mt-5 flex flex-wrap gap-4 border-t border-line pt-4.5 font-mono text-[13px]">
+                    <ShareLink />
+                </div>
+            )}
         </aside>
     );
 };

@@ -37,25 +37,30 @@ const EventMainContent = async ({ slug }: { slug: Promise<string> }): Promise<Re
     // The organizer sees the hosting card instead of the booking form. Edit event shows only while they can still edit it.
     const userId = session?.user?.id;
     const isOrganizer = Boolean(userId) && event.createdBy === userId;
+    // By date, like My events and the edit rule: an event has ended once its day is before today.
+    const ended = event.date < today();
     const hosting = isOrganizer
         ? {
               canEdit: getPermissionError({ event, user: { id: userId }, action: "edit", today: today() }) === null,
               // Loaded only for the organizer, so the meeting link never reaches anyone who hasn't booked.
-              onlineUrl: await getOnlineUrl(event._id).catch((error): undefined => {
-                  console.error("Loading the meeting link failed:", error);
-                  return undefined;
-              }),
+              // An ended event shows no Join online, so it isn't loaded then.
+              onlineUrl: ended
+                  ? undefined
+                  : await getOnlineUrl(event._id).catch((error): undefined => {
+                        console.error("Loading the meeting link failed:", error);
+                        return undefined;
+                    }),
           }
         : null;
 
     return (
         <>
-            <EventHeader {...event} />
+            <EventHeader {...event} ended={ended} />
             <div className="mx-auto max-w-300 px-6">
                 <div className="details">
                     <EventContent event={event} />
                     <BookingProvider value={{ eventId: event._id, slug: event.slug }}>
-                        <BookForm event={event} bookingCount={bookingCount} account={account} existingBooking={existingBooking} hosting={hosting} />
+                        <BookForm event={event} bookingCount={bookingCount} account={account} existingBooking={existingBooking} hosting={hosting} ended={ended} />
                     </BookingProvider>
                 </div>
             </div>

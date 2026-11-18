@@ -11,10 +11,11 @@ type FormatBadgeProps = {
     mode: EventFields["mode"];
     // Sets the size and font, which differ between the card and the event page.
     className?: string;
+    muted?: boolean; // a gray outline instead of the format's colour, on past bookings
 };
 
-const FormatBadge = ({ mode, className = "px-2.5 py-1.5 font-mono text-xs" }: FormatBadgeProps) => (
-    <span className={`whitespace-nowrap rounded-full border font-bold text-on-accent ${FORMAT_COLORS[mode]} ${className}`}>
+const FormatBadge = ({ mode, className = "px-2.5 py-1.5 font-mono text-xs", muted = false }: FormatBadgeProps) => (
+    <span className={`whitespace-nowrap rounded-full border ${muted ? "border-border text-muted" : `font-bold text-on-accent ${FORMAT_COLORS[mode]}`} ${className}`}>
         {FORMAT_LABELS[mode]}
     </span>
 );
