@@ -81,7 +81,7 @@ export const createBooking = async ({eventId}: CreateBookingParams) => {
         if (typeof e === 'object' && e !== null && 'code' in e && (e as { code?: number }).code === 11000) {
             return {
                 success: false,
-                message: 'This email is already registered for this event.',
+                message: 'You already have a spot at this event.',
             } satisfies CreateBookingResult;
         }
 

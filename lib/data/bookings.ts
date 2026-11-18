@@ -11,8 +11,7 @@ export async function getBookingCount(eventId: string): Promise<number> {
     return Booking.countDocuments({ eventId });
 }
 
-// How many upcoming events this signed-in user has a spot at. Guest bookings made with
-// the same email don't count, because emails aren't verified yet.
+// How many upcoming events this user has a spot at. Removed (hidden) bookings don't count.
 export async function countUpcomingBookingsByUser(userId: string): Promise<number> {
     await connectDB();
     const eventIds = await Booking.distinct("eventId", { userId, hiddenByUser: { $ne: true } });
@@ -20,8 +19,7 @@ export async function countUpcomingBookingsByUser(userId: string): Promise<numbe
     return Event.countDocuments({ _id: { $in: eventIds }, date: { $gte: today() } });
 }
 
-// Whether this signed-in user already has a spot at the event. Guest bookings made with
-// the same email don't count, because emails aren't verified yet.
+// Whether this user already has a spot at the event.
 export async function hasUserBookedEvent(userId: string, eventId: string): Promise<boolean> {
     await connectDB();
     return (await Booking.exists({ userId, eventId })) !== null;

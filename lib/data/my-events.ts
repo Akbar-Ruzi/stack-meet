@@ -53,7 +53,6 @@ export const getUpcomingBookings = (userId: string) => getBookingsByEventDate(us
 // This user's bookings at events that have ended, most recent first. Removed ones are left out.
 export const getPastBookings = (userId: string) => getBookingsByEventDate(userId, "past");
 
-// Guest bookings made with the same email aren't included, because emails aren't verified yet.
 async function getBookingsByEventDate(userId: string, when: "upcoming" | "past"): Promise<BookedEvent[]> {
     await connectDB();
     const bookings = await Booking.find({ userId, hiddenByUser: { $ne: true } })

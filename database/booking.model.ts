@@ -4,7 +4,7 @@ import Event from './event.model';
 // TypeScript interface for Booking document
 export interface IBooking extends Document {
   eventId: Types.ObjectId;
-  userId?: Types.ObjectId; // Set when a signed-in user books; empty for guests
+  userId: Types.ObjectId; // The account that booked. Only signed-in users can book
   name: string;
   email: string;
   phone?: string;
@@ -23,6 +23,7 @@ const BookingSchema = new Schema<IBooking>(
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: [true, 'User ID is required'],
       index: true,
     },
     name: {
@@ -90,11 +91,8 @@ BookingSchema.index({ eventId: 1 });
 // Create compound index for common queries (events bookings by date)
 BookingSchema.index({ eventId: 1, createdAt: -1 });
 
-// Create index on email for user booking lookups
-BookingSchema.index({ email: 1 });
-
-// Enforce one booking per events per email
-BookingSchema.index({ eventId: 1, email: 1 }, { unique: true, name: 'uniq_event_email' });
+// One booking per event per user
+BookingSchema.index({ eventId: 1, userId: 1 }, { unique: true, name: 'uniq_event_user' });
 const Booking = models.Booking || model<IBooking>('Booking', BookingSchema);
 
 export default Booking;

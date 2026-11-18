@@ -10,7 +10,7 @@ type RouteParams = { params: Promise<{ id: string }> };
 /**
  * DELETE /api/bookings/[id]
  * Cancels a spot. Only the signed-in user the booking belongs to can cancel it, and only
- * before the event. Guest bookings have no user, so they can't be canceled here yet.
+ * before the event.
  */
 export async function DELETE(_request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
     try {
@@ -23,9 +23,9 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams): Pr
         if (!mongoose.isValidObjectId(id)) return NextResponse.json({ message: "Booking not found" }, { status: 404 });
 
         await connectDB();
-        const booking = await Booking.findById(id).select("userId eventId").lean<{ userId?: mongoose.Types.ObjectId; eventId: mongoose.Types.ObjectId }>();
+        const booking = await Booking.findById(id).select("userId eventId").lean<{ userId: mongoose.Types.ObjectId; eventId: mongoose.Types.ObjectId }>();
         if (!booking) return NextResponse.json({ message: "Booking not found" }, { status: 404 });
-        if (booking.userId?.toString() !== userId) {
+        if (booking.userId.toString() !== userId) {
             return NextResponse.json({ message: "You can only cancel your own spot." }, { status: 403 });
         }
 
@@ -59,9 +59,9 @@ export async function PATCH(_request: NextRequest, { params }: RouteParams): Pro
         if (!mongoose.isValidObjectId(id)) return NextResponse.json({ message: "Booking not found" }, { status: 404 });
 
         await connectDB();
-        const booking = await Booking.findById(id).select("userId eventId").lean<{ userId?: mongoose.Types.ObjectId; eventId: mongoose.Types.ObjectId }>();
+        const booking = await Booking.findById(id).select("userId eventId").lean<{ userId: mongoose.Types.ObjectId; eventId: mongoose.Types.ObjectId }>();
         if (!booking) return NextResponse.json({ message: "Booking not found" }, { status: 404 });
-        if (booking.userId?.toString() !== userId) {
+        if (booking.userId.toString() !== userId) {
             return NextResponse.json({ message: "You can only remove your own booking." }, { status: 403 });
         }
 
