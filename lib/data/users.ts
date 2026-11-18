@@ -13,3 +13,12 @@ export async function getBookingContact(userId: string): Promise<BookingContact 
     if (!user) return null;
     return { name: user.name, email: user.email, phone: user.phone || undefined };
 }
+
+// Saves the hash of a new verification link's token, replacing any earlier one, so only the latest link works.
+export async function saveEmailVerificationToken(userId: string, tokenHash: string, expiresAt: Date): Promise<void> {
+    await connectDB();
+    await User.updateOne(
+        { _id: userId },
+        { $set: { emailVerificationTokenHash: tokenHash, emailVerificationExpiresAt: expiresAt } }
+    );
+}
