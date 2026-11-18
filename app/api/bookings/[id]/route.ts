@@ -42,3 +42,39 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams): Pr
         return NextResponse.json({ message: "Couldn't cancel your spot. Please try again." }, { status: 500 });
     }
 }
+
+/**
+ * PATCH /api/bookings/[id]
+ * Removes a past booking from the user's Booked list. Only the user the booking belongs to can
+ * remove it, and only once the event has ended. The booking is hidden, not deleted, so the
+ * organizer's "N people booked" stays the same.
+ */
+export async function PATCH(_request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
+    try {
+        const session = await auth();
+        const userId = session?.user?.id;
+        if (!userId) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+
+        const { id } = await params;
+        if (!mongoose.isValidObjectId(id)) return NextResponse.json({ message: "Booking not found" }, { status: 404 });
+
+        await connectDB();
+        const booking = await Booking.findById(id).select("userId eventId").lean<{ userId?: mongoose.Types.ObjectId; eventId: mongoose.Types.ObjectId }>();
+        if (!booking) return NextResponse.json({ message: "Booking not found" }, { status: 404 });
+        if (booking.userId?.toString() !== userId) {
+            return NextResponse.json({ message: "You can only remove your own booking." }, { status: 403 });
+        }
+
+        // An upcoming spot is cancelled instead, which frees it for someone else.
+        const event = await Event.findById(booking.eventId).select("date").lean<{ date: string }>();
+        if (!event || event.date >= today()) {
+            return NextResponse.json({ message: "Only bookings for events that have ended can be removed." }, { status: 400 });
+        }
+
+        await Booking.updateOne({ _id: id, userId }, { $set: { hiddenByUser: true } });
+        return NextResponse.json({ message: "Booking removed from your list" }, { status: 200 });
+    } catch (error) {
+        console.error("Removing a past booking failed:", error);
+        return NextResponse.json({ message: "Couldn't remove the booking. Please try again." }, { status: 500 });
+    }
+}

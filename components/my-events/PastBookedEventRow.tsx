@@ -1,14 +1,13 @@
-import Link from "next/link";
 import DateTile from "@/components/ui/DateTile";
 import FormatBadge from "@/components/ui/FormatBadge";
+import PastBookingActions from "@/components/my-events/PastBookingActions";
 import { formatMonthDay, getEventPlace } from "@/lib/events/display";
-import { ACTIONS_ROW } from "@/lib/constants";
 import type { BookedEvent } from "@/lib/data/my-events";
 
 // One booked event that has ended: faded, with a dashed border and the "Event ended" pill.
 // On phones the format badge moves next to the date tile, as on the upcoming rows.
 const PastBookedEventRow = ({ booking }: { booking: BookedEvent }) => {
-    const { title, slug, date, time, mode, location, bookedOn } = booking;
+    const { bookingId, title, slug, date, time, mode, location, bookedOn } = booking;
 
     return (
         <article className="flex flex-wrap items-center gap-x-5 gap-y-4.5 rounded-2xl border border-dashed border-border bg-bg px-5 py-4.5 text-muted">
@@ -33,11 +32,7 @@ const PastBookedEventRow = ({ booking }: { booking: BookedEvent }) => {
                     <span>You booked a spot · {formatMonthDay(bookedOn)}</span>
                 </div>
             </div>
-            <div className={ACTIONS_ROW}>
-                <Link href={`/events/${slug}`} className="inline-flex min-h-11 items-center rounded-[10px] border border-border px-3.5 text-sm text-body">
-                    View event
-                </Link>
-            </div>
+            <PastBookingActions bookingId={bookingId} title={title} slug={slug} />
         </article>
     );
 };
