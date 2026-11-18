@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import BookEvent from "@/components/events/BookEvent";
+import HostingActions from "@/components/events/HostingActions";
 import ShareLink from "@/components/events/ShareLink";
 import SignInToBook from "@/components/events/SignInToBook";
 import { formatBookedCount, formatLongDate, getBookingPlace, getConfirmationPlace } from "@/lib/events/display";
@@ -18,16 +19,17 @@ type BookFormProps = {
     bookingCount: number | null; // null when the count couldn't be loaded
     account: BookingAccountUser | null; // the signed-in visitor, or null when signed out, who gets "Sign in to book"
     existingBooking: ExistingBooking | null; // the signed-in visitor's spot at this event, if they have one
+    hosting: { canEdit: boolean } | null; // set when the signed-in visitor created this event, who can't book it
 };
 
-const BookForm = ({ event, bookingCount, account, existingBooking }: BookFormProps) => {
+const BookForm = ({ event, bookingCount, account, existingBooking, hosting }: BookFormProps) => {
     const longDate = formatLongDate(event.date);
 
     // Rendered here on the server and handed to BookEvent, which hides it once the visitor has a spot.
     const header = (
         <>
-            <p className="font-mono text-[13px] text-accent">$ reserve --spot</p>
-            <h2 className="mt-2 text-[26px]">Book your spot</h2>
+            <p className="font-mono text-[13px] text-accent">{hosting ? "$ host --event" : "$ reserve --spot"}</p>
+            <h2 className="mt-2 text-[26px]">{hosting ? "You’re hosting this event" : "Book your spot"}</h2>
 
             <dl className="mt-5.5 grid grid-cols-[24px_1fr] items-center gap-x-3 gap-y-3.5 text-[15px]">
                 <dt aria-label="Date">
@@ -53,7 +55,13 @@ const BookForm = ({ event, bookingCount, account, existingBooking }: BookFormPro
 
     return (
         <aside className="min-w-0 flex-[1_1_320px] max-w-100 rounded-[18px] border border-border bg-surface p-7 wrap-anywhere">
-            {account ? (
+            {hosting ? (
+                <>
+                    {header}
+                    <HostingActions slug={event.slug} canEdit={hosting.canEdit} />
+                    {bookedLine && <p className="mt-3.5 text-sm text-muted">{bookedLine} so far</p>}
+                </>
+            ) : account ? (
                 <BookEvent
                     account={account}
                     existingBooking={existingBooking}

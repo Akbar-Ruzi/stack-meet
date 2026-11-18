@@ -5,7 +5,8 @@ import EventHeader from "@/components/events/EventHeader";
 import EventContent from "@/components/events/EventContent";
 import BookForm from "@/components/events/BookForm";
 import { BookingProvider } from "@/context/booking-context";
-import { getEventBySlug } from "@/lib/data/events";
+import { getEventBySlug, today } from "@/lib/data/events";
+import { getPermissionError } from "@/lib/events/permissions";
 import { getBookingCount, getUserBooking } from "@/lib/data/bookings";
 import { auth } from "@/auth";
 
@@ -33,6 +34,11 @@ const EventMainContent = async ({ slug }: { slug: Promise<string> }): Promise<Re
     const account = session?.user?.email
         ? { name: session.user.name ?? "", email: session.user.email }
         : null;
+    // The organizer sees the hosting card instead of the booking form. Edit event shows only while they can still edit it.
+    const userId = session?.user?.id;
+    const hosting = userId && event.createdBy === userId
+        ? { canEdit: getPermissionError({ event, user: { id: userId }, action: "edit", today: today() }) === null }
+        : null;
 
     return (
         <>
@@ -41,7 +47,7 @@ const EventMainContent = async ({ slug }: { slug: Promise<string> }): Promise<Re
                 <div className="details">
                     <EventContent event={event} />
                     <BookingProvider value={{ eventId: event._id, slug: event.slug }}>
-                        <BookForm event={event} bookingCount={bookingCount} account={account} existingBooking={existingBooking} />
+                        <BookForm event={event} bookingCount={bookingCount} account={account} existingBooking={existingBooking} hosting={hosting} />
                     </BookingProvider>
                 </div>
             </div>
