@@ -120,18 +120,19 @@ Each file has one job: pages put sections together, components render UI, and lo
 
 ### Booking a spot
 
-Guests can book without an account.
+Booking needs an account. Signed-out visitors see a **Sign in to book** button, which brings them back to the event after they sign in.
 
 ```text
-Booking form
+Book now button
   → createBooking Server Action (lib/actions/booking.action.ts)
-  → validates name, email and phone
-  → checks whether the person is signed in
-  → saves the booking in MongoDB
-  → the form shows the result
+  → checks that the person is signed in and the event hasn't ended
+  → takes the name, email and phone from their account
+  → checks the limits (not their own event, not already booked, 3 upcoming bookings per user)
+  → saves the booking in MongoDB with their user ID
+  → the card shows the "You're in!" box
 ```
 
-Each email can book an event only once, which a unique database index enforces. If a signed-in user books, their user ID is saved with the booking.
+Each user can book an event only once, which a unique database index on the event and user enforces.
 
 ### Signing up and signing in
 
@@ -202,7 +203,7 @@ The app uses API routes and Server Actions, which both reach MongoDB through Mon
 | **Event** | An event listing | `title`, `slug`, `description`, `overview`, `image`, `date`, `time`, `mode`, `venue`, `location`, `onlineUrl`, `agenda`, `tags`, `createdBy` |
 | **Booking** | A reserved spot | `eventId`, `userId`, `name`, `email`, `phone`, `hiddenByUser` |
 
-Events link to their owner through `createdBy`, and bookings link to their event through `eventId`. Guest bookings have no `userId`.
+Events link to their owner through `createdBy`, and bookings link to their event through `eventId` and to the account that booked through `userId`.
 
 An event's `mode` is `online`, `in-person` or `hybrid`. In-person and hybrid events require a `venue` and `location`. `onlineUrl` is hidden from public responses, and each `agenda` item has a `start` and a `title`.
 
