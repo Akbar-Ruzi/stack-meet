@@ -12,6 +12,9 @@ export interface UserFields {
 
 export interface IUser extends UserFields, Document {
     eventCount: number; // Events this user has created, kept in step so the limit can be checked atomically
+    emailVerifiedAt?: Date; // Set when the user opens the link in the verification email
+    emailVerificationTokenHash?: string; // SHA-256 of the latest link's token; the token itself is only in the email
+    emailVerificationExpiresAt?: Date;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -51,9 +54,24 @@ const UserSchema = new Schema<IUser>(
             default: 0,
             min: 0,
         },
+        emailVerifiedAt: {
+            type: Date,
+        },
+        // Not loaded unless a query asks for them, so they can't end up in a response by accident.
+        emailVerificationTokenHash: {
+            type: String,
+            select: false,
+        },
+        emailVerificationExpiresAt: {
+            type: Date,
+            select: false,
+        },
     },
     { timestamps: true }
 );
+
+// The verify page looks the user up by the hash of the link's token.
+UserSchema.index({ emailVerificationTokenHash: 1 }, { sparse: true });
 
 const User = models.User || model<IUser>("User", UserSchema);
 
