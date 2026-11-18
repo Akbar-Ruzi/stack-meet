@@ -3,14 +3,14 @@ import { auth } from "@/auth";
 import connectDB from "@/lib/data/mongodb";
 import Booking from "@/database/booking.model";
 import Event from "@/database/event.model";
-import { countUpcomingBookingsByEmail, getBookingCount, hasUserBookedEvent } from "@/lib/data/bookings";
+import { countUpcomingBookingsByUser, getBookingCount, hasUserBookedEvent } from "@/lib/data/bookings";
 import { hasEventEnded, isEventCreatedBy } from "@/lib/data/events";
 import { getBookingContact } from "@/lib/data/users";
 
 // Bookings one event can take.
 const MAX_BOOKINGS_PER_EVENT = 200;
-// Different upcoming events one email can book at once.
-const MAX_UPCOMING_BOOKINGS_PER_EMAIL = 3;
+// Different upcoming events one user can book at once. Past and removed bookings don't count.
+const MAX_UPCOMING_BOOKINGS_PER_USER = 3;
 
 type CreateBookingParams = {
     eventId: string;
@@ -57,11 +57,11 @@ export const createBooking = async ({eventId}: CreateBookingParams) => {
             return {success: false, message: 'This event is fully booked.'} satisfies CreateBookingResult;
         }
 
-        // This event is left out of the count, so booking it twice still gets the duplicate message below.
-        if (await countUpcomingBookingsByEmail(email, eventId) >= MAX_UPCOMING_BOOKINGS_PER_EMAIL) {
+        // The same count as My events → Booked. This event isn't in it, because the duplicate check above already passed.
+        if (await countUpcomingBookingsByUser(userId) >= MAX_UPCOMING_BOOKINGS_PER_USER) {
             return {
                 success: false,
-                message: `One email can book up to ${MAX_UPCOMING_BOOKINGS_PER_EMAIL} upcoming events.`,
+                message: `You can book up to ${MAX_UPCOMING_BOOKINGS_PER_USER} upcoming events at a time, and you already have ${MAX_UPCOMING_BOOKINGS_PER_USER}. Cancel one in My events → Booked to book this one.`,
             } satisfies CreateBookingResult;
         }
 

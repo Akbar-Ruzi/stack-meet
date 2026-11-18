@@ -43,12 +43,3 @@ export async function getUserBooking(userId: string, eventId: string): Promise<E
     const onlineUrl = event && event.mode !== "in-person" ? event.onlineUrl : undefined;
     return { name: booking.name, email: booking.email, onlineUrl };
 }
-
-// How many upcoming events this email has booked, not counting `exceptEventId`.
-// Past events don't count, and a canceled booking is deleted, so it no longer counts either.
-export async function countUpcomingBookingsByEmail(email: string, exceptEventId: string): Promise<number> {
-    await connectDB();
-    const eventIds = await Booking.distinct("eventId", { email, eventId: { $ne: exceptEventId } });
-    if (eventIds.length === 0) return 0;
-    return Event.countDocuments({ _id: { $in: eventIds }, date: { $gte: today() } });
-}
