@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import BookEvent from "@/components/events/BookEvent";
 import ShareLink from "@/components/events/ShareLink";
+import SignInToBook from "@/components/events/SignInToBook";
 import { formatBookedCount, formatLongDate, getBookingPlace, getConfirmationPlace } from "@/lib/events/display";
 import type { BookingAccountUser } from "@/hooks/useBookingForm";
 import type { ExistingBooking } from "@/lib/data/bookings";
@@ -13,9 +14,9 @@ const Icon = ({ children }: { children: ReactNode }) => (
 );
 
 type BookFormProps = {
-    event: Pick<EventFields, "title" | "date" | "time" | "mode" | "venue" | "location">;
+    event: Pick<EventFields, "slug" | "title" | "date" | "time" | "mode" | "venue" | "location">;
     bookingCount: number | null; // null when the count couldn't be loaded
-    account: BookingAccountUser | null; // the signed-in visitor, or null for a guest
+    account: BookingAccountUser | null; // the signed-in visitor, or null when signed out, who gets "Sign in to book"
     existingBooking: ExistingBooking | null; // the signed-in visitor's spot at this event, if they have one
 };
 
@@ -48,16 +49,25 @@ const BookForm = ({ event, bookingCount, account, existingBooking }: BookFormPro
             </dl>
         </>
     );
+    const bookedLine = bookingCount === null ? null : formatBookedCount(bookingCount);
 
     return (
         <aside className="min-w-0 flex-[1_1_320px] max-w-100 rounded-[18px] border border-border bg-surface p-7 wrap-anywhere">
-            <BookEvent
-                account={account}
-                existingBooking={existingBooking}
-                header={header}
-                event={{ title: event.title, date: longDate, time: event.time, place: getConfirmationPlace(event) }}
-                bookedLine={bookingCount === null ? null : formatBookedCount(bookingCount)}
-            />
+            {account ? (
+                <BookEvent
+                    account={account}
+                    existingBooking={existingBooking}
+                    header={header}
+                    event={{ title: event.title, date: longDate, time: event.time, place: getConfirmationPlace(event) }}
+                    bookedLine={bookedLine}
+                />
+            ) : (
+                <>
+                    {header}
+                    <SignInToBook slug={event.slug} />
+                    {bookedLine && <p className="mt-3.5 text-sm text-muted">{bookedLine}</p>}
+                </>
+            )}
 
             <div className="mt-5 flex flex-wrap gap-4 border-t border-line pt-4.5 font-mono text-[13px]">
                 <ShareLink />

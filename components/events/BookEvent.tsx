@@ -22,9 +22,7 @@ type BookEventProps = {
 const BookEvent = ({ account, existingBooking, header, event, bookedLine }: BookEventProps) => {
     const { values, errors, isSubmitting, formError, booked, onlineUrl, setValue, handleSubmit } = useBookingForm(account, existingBooking);
 
-    // A guest who hasn't booked yet sees "No account needed"; everyone else sees only the count.
-    const countLine = account || booked ? bookedLine : ["No account needed", bookedLine].filter(Boolean).join(" · ");
-    const countParagraph = countLine && <p className="mt-3.5 text-sm text-muted">{countLine}</p>;
+    const countParagraph = bookedLine && <p className="mt-3.5 text-sm text-muted">{bookedLine}</p>;
 
     if (booked) {
         return (
@@ -91,7 +89,7 @@ const BookEvent = ({ account, existingBooking, header, event, bookedLine }: Book
                         className="w-full gap-2.5 aria-disabled:cursor-not-allowed aria-disabled:opacity-70"
                     >
                         {isSubmitting && <Spinner size={16} />}
-                        {isSubmitting ? "Reserving…" : "Reserve my spot"}
+                        {isSubmitting ? "Booking…" : "Book now"}
                     </Button>
                 </div>
             </form>
