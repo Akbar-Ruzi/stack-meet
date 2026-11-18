@@ -97,6 +97,13 @@ export async function countEventsByUser(userId: string): Promise<number> {
     return Event.countDocuments({ createdBy: userId });
 }
 
+// The event's meeting link, for its organizer. onlineUrl is left out of event reads by default, so it's asked for here.
+export async function getOnlineUrl(eventId: string): Promise<string | undefined> {
+    await connectDB();
+    const doc = await Event.findById(eventId).select("+onlineUrl mode").lean<{ mode: string; onlineUrl?: string }>();
+    return doc && doc.mode !== "in-person" ? doc.onlineUrl : undefined;
+}
+
 // Whether this user created the event. Organizers can't book their own events.
 export async function isEventCreatedBy(eventId: string, userId: string): Promise<boolean> {
     await connectDB();

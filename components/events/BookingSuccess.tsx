@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import JoinOnlineLink from "@/components/events/JoinOnlineLink";
 import { useFocusOnMount } from "@/hooks/useFocusOnMount";
 
 export type BookedEventDetails = {
     title: string;
     date: string; // "Saturday, November 14, 2026"
     time: string;
-    place: string; // "Online", or the venue and city
+    venuePlace: string | null; // the venue and city, or null for an online event
+    online: boolean; // online and hybrid events add an "Online" line
 };
 
 type BookingSuccessProps = {
@@ -58,14 +60,12 @@ const BookingSuccess = ({ event, name, email, onlineUrl, signedIn, moveFocus = t
                 </dd>
                 <dt className="mt-3.5 font-mono text-xs text-muted">where</dt>
                 <dd className="mt-1 min-w-0 wrap-anywhere">
-                    {event.place}
-                    {onlineUrl && (
-                        <>
-                            <a href={onlineUrl} target="_blank" rel="noopener noreferrer" className="mt-1 block text-accent underline">
-                                {onlineUrl}
-                            </a>
-                            <span className="mt-1 block text-muted">Save this link. We can&apos;t email it to you.</span>
-                        </>
+                    {event.venuePlace && <span className="block">{event.venuePlace}</span>}
+                    {event.online && (
+                        <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                            Online
+                            {onlineUrl && <JoinOnlineLink href={onlineUrl} />}
+                        </span>
                     )}
                 </dd>
             </dl>

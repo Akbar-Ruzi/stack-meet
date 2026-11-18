@@ -64,12 +64,11 @@ export function formatLongDate(date: string) {
     }).format(parsed);
 }
 
-// The location line on the booking card. Links are shown after booking because the app can't send email.
-export function getBookingPlace({ mode, venue, location }: Pick<EventFields, "mode" | "venue" | "location">) {
-    if (mode === "online") return "Online — link shown after booking";
-
-    const place = [venue, location].filter(Boolean).join(", ");
-    return mode === "hybrid" ? `${place} — online link shown after booking` : place;
+// "<venue>, <city>" on the booking card and in the booked box, or null for an online event.
+// Online and hybrid events add their own "Online" line.
+export function getVenuePlace({ mode, venue, location }: Pick<EventFields, "mode" | "venue" | "location">) {
+    if (mode === "online") return null;
+    return [venue, location].filter(Boolean).join(", ");
 }
 
 export function getEventPlace({ mode, location }: Pick<EventFields, "mode" | "location">) {
@@ -79,10 +78,4 @@ export function getEventPlace({ mode, location }: Pick<EventFields, "mode" | "lo
 // "1 person has booked" / "N people have booked", under the booking card.
 export function formatBookedCount(count: number) {
     return `${count} ${count === 1 ? "person has" : "people have"} booked`;
-}
-
-// "where" in the "You're in!" box: "Online", or the venue and city for in-person and hybrid events.
-export function getConfirmationPlace({ mode, venue, location }: Pick<EventFields, "mode" | "venue" | "location">) {
-    if (mode === "online") return "Online";
-    return [venue, location].filter(Boolean).join(", ");
 }

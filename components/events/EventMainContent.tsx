@@ -5,7 +5,7 @@ import EventHeader from "@/components/events/EventHeader";
 import EventContent from "@/components/events/EventContent";
 import BookForm from "@/components/events/BookForm";
 import { BookingProvider } from "@/context/booking-context";
-import { getEventBySlug, today } from "@/lib/data/events";
+import { getEventBySlug, getOnlineUrl, today } from "@/lib/data/events";
 import { getPermissionError } from "@/lib/events/permissions";
 import { getBookingCount, getUserBooking } from "@/lib/data/bookings";
 import { auth } from "@/auth";
@@ -36,8 +36,16 @@ const EventMainContent = async ({ slug }: { slug: Promise<string> }): Promise<Re
         : null;
     // The organizer sees the hosting card instead of the booking form. Edit event shows only while they can still edit it.
     const userId = session?.user?.id;
-    const hosting = userId && event.createdBy === userId
-        ? { canEdit: getPermissionError({ event, user: { id: userId }, action: "edit", today: today() }) === null }
+    const isOrganizer = Boolean(userId) && event.createdBy === userId;
+    const hosting = isOrganizer
+        ? {
+              canEdit: getPermissionError({ event, user: { id: userId }, action: "edit", today: today() }) === null,
+              // Loaded only for the organizer, so the meeting link never reaches anyone who hasn't booked.
+              onlineUrl: await getOnlineUrl(event._id).catch((error): undefined => {
+                  console.error("Loading the meeting link failed:", error);
+                  return undefined;
+              }),
+          }
         : null;
 
     return (

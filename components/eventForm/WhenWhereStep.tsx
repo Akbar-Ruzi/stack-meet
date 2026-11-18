@@ -24,7 +24,7 @@ const WhenWhereStep = ({ form, active }: { form: UseFormReturn<EventFormValues>;
                 </div>
             )}
             {mode !== "in-person" && (
-                <Input id="event-online-url" label="Online link" type="url" placeholder="https:// — sent to attendees after booking" {...form.register("onlineUrl")} />
+                <Input id="event-online-url" label="Online link" type="url" placeholder="https://… — shown only to people who book" {...form.register("onlineUrl")} />
             )}
         </StepFields>
     );
