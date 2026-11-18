@@ -32,7 +32,7 @@ export function useBookingForm(account: BookingAccountUser, existingBooking: Exi
 
         setIsSubmitting(true);
         try {
-            const booking = await createBooking({ eventId, slug });
+            const booking = await createBooking({ eventId });
 
             if (booking.success) {
                 setOnlineUrl(booking.onlineUrl);

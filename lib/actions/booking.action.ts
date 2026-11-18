@@ -3,23 +3,17 @@ import { auth } from "@/auth";
 import connectDB from "@/lib/data/mongodb";
 import Booking from "@/database/booking.model";
 import Event from "@/database/event.model";
-import { bookingSchema } from "@/lib/bookings/booking-zod-schema";
 import { countUpcomingBookingsByEmail, getBookingCount, hasUserBookedEvent } from "@/lib/data/bookings";
 import { hasEventEnded, isEventCreatedBy } from "@/lib/data/events";
-import { getBookingContact, type BookingContact } from "@/lib/data/users";
+import { getBookingContact } from "@/lib/data/users";
 
 // Bookings one event can take.
 const MAX_BOOKINGS_PER_EVENT = 200;
 // Different upcoming events one email can book at once.
 const MAX_UPCOMING_BOOKINGS_PER_EMAIL = 3;
 
-// name, email and phone are only read for guests. A signed-in user's booking uses their account's details.
 type CreateBookingParams = {
     eventId: string;
-    slug: string;
-    email?: string;
-    name?: string;
-    phone?: string;
 }
 
 type CreateBookingResult = {
@@ -28,40 +22,33 @@ type CreateBookingResult = {
     onlineUrl?: string; // Sent only after a successful booking, because the app can't email it
 }
 
-export const createBooking = async ({eventId, email, name, phone}: CreateBookingParams) => {
+// Only signed-in users can book. The name, email and phone come from their account.
+export const createBooking = async ({eventId}: CreateBookingParams) => {
     try {
         const session = await auth();
         const userId = session?.user?.id;
+        if (!userId) {
+            return {success: false, message: 'Please sign in to book a spot.'} satisfies CreateBookingResult;
+        }
 
         // Checked here too, not only on the page, so a page opened before the event ended can't book it.
         if (await hasEventEnded(eventId)) {
             return {success: false, message: 'Booking is closed for this event.'} satisfies CreateBookingResult;
         }
 
-        let contact: BookingContact;
-        if (userId) {
-            // Taken from the account, so a booking can't be saved to it under someone else's email.
-            const account = await getBookingContact(userId);
-            if (!account) {
-                return {success: false, message: 'Your account could not be found. Please sign in again.'} satisfies CreateBookingResult;
-            }
-            // Checked here too, not only on the page, so the rule holds even without the form.
-            if (await isEventCreatedBy(eventId, userId)) {
-                return {success: false, message: "You're the organizer, so you can't book a spot here."} satisfies CreateBookingResult;
-            }
-            if (await hasUserBookedEvent(userId, eventId)) {
-                return {success: false, message: 'You already have a spot at this event.'} satisfies CreateBookingResult;
-            }
-            contact = account;
-        } else {
-            // The same rules as the form. The schema also trims the values and lowercases the email.
-            const parsed = bookingSchema.safeParse({ name, email, phone });
-            if (!parsed.success) {
-                return {success: false, message: parsed.error.issues[0].message} satisfies CreateBookingResult;
-            }
-            contact = { ...parsed.data, phone: parsed.data.phone || undefined };
+        // Taken from the account, so a booking can't be saved to it under someone else's email.
+        const account = await getBookingContact(userId);
+        if (!account) {
+            return {success: false, message: 'Your account could not be found. Please sign in again.'} satisfies CreateBookingResult;
         }
-        const { name: cleanName, email: normalizedEmail, phone: cleanPhone } = contact;
+        // Checked here too, not only on the page, so the rule holds even without the form.
+        if (await isEventCreatedBy(eventId, userId)) {
+            return {success: false, message: "You're the organizer, so you can't book a spot here."} satisfies CreateBookingResult;
+        }
+        if (await hasUserBookedEvent(userId, eventId)) {
+            return {success: false, message: 'You already have a spot at this event.'} satisfies CreateBookingResult;
+        }
+        const { name, email, phone } = account;
 
         await connectDB();
 
@@ -71,7 +58,7 @@ export const createBooking = async ({eventId, email, name, phone}: CreateBooking
         }
 
         // This event is left out of the count, so booking it twice still gets the duplicate message below.
-        if (await countUpcomingBookingsByEmail(normalizedEmail, eventId) >= MAX_UPCOMING_BOOKINGS_PER_EMAIL) {
+        if (await countUpcomingBookingsByEmail(email, eventId) >= MAX_UPCOMING_BOOKINGS_PER_EMAIL) {
             return {
                 success: false,
                 message: `One email can book up to ${MAX_UPCOMING_BOOKINGS_PER_EMAIL} upcoming events.`,
@@ -80,10 +67,10 @@ export const createBooking = async ({eventId, email, name, phone}: CreateBooking
 
         await Booking.create({
             eventId,
-            userId, // Guests have no session, so this stays empty
-            name: cleanName,
-            email: normalizedEmail,
-            phone: cleanPhone,
+            userId,
+            name,
+            email,
+            phone,
         });
         // onlineUrl is left out of event reads by default, so it's asked for explicitly here.
         const event = await Event.findById(eventId).select("+onlineUrl mode").lean<{ mode: string; onlineUrl?: string }>();
