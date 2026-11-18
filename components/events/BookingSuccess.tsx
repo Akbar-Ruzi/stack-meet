@@ -17,12 +17,11 @@ type BookingSuccessProps = {
     name: string;
     email: string;
     onlineUrl?: string;
-    signedIn: boolean;
     moveFocus?: boolean; // true right after booking, so the box is announced and focused
 };
 
 // The "You're in!" box, which replaces the booking card's content once the visitor has a spot.
-const BookingSuccess = ({ event, name, email, onlineUrl, signedIn, moveFocus = true }: BookingSuccessProps) => {
+const BookingSuccess = ({ event, name, email, onlineUrl, moveFocus = true }: BookingSuccessProps) => {
     const ref = useFocusOnMount<HTMLDivElement>(moveFocus);
 
     return (
@@ -70,14 +69,12 @@ const BookingSuccess = ({ event, name, email, onlineUrl, signedIn, moveFocus = t
                 </dd>
             </dl>
 
-            {signedIn && (
-                <Link
-                    href="/my-events?tab=booked"
-                    className="mt-4 flex min-h-12 w-full items-center justify-center rounded-[10px] border border-border text-[15px] font-bold text-text"
-                >
-                    View my bookings
-                </Link>
-            )}
+            <Link
+                href="/my-events?tab=booked"
+                className="mt-4 flex min-h-12 w-full items-center justify-center rounded-[10px] border border-border text-[15px] font-bold text-text"
+            >
+                View my bookings
+            </Link>
         </div>
     );
 };
