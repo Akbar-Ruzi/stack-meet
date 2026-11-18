@@ -5,6 +5,7 @@ import Booking from "@/database/booking.model";
 import Event from "@/database/event.model";
 import { bookingSchema } from "@/lib/bookings/booking-zod-schema";
 import { countUpcomingBookingsByEmail, getBookingCount, hasUserBookedEvent } from "@/lib/data/bookings";
+import { isEventCreatedBy } from "@/lib/data/events";
 import { getBookingContact, type BookingContact } from "@/lib/data/users";
 
 // Bookings one event can take.
@@ -38,6 +39,10 @@ export const createBooking = async ({eventId, email, name, phone}: CreateBooking
             const account = await getBookingContact(userId);
             if (!account) {
                 return {success: false, message: 'Your account could not be found. Please sign in again.'} satisfies CreateBookingResult;
+            }
+            // Checked here too, not only on the page, so the rule holds even without the form.
+            if (await isEventCreatedBy(eventId, userId)) {
+                return {success: false, message: "You're the organizer, so you can't book a spot here."} satisfies CreateBookingResult;
             }
             if (await hasUserBookedEvent(userId, eventId)) {
                 return {success: false, message: 'You already have a spot at this event.'} satisfies CreateBookingResult;

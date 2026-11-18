@@ -97,6 +97,12 @@ export async function countEventsByUser(userId: string): Promise<number> {
     return Event.countDocuments({ createdBy: userId });
 }
 
+// Whether this user created the event. Organizers can't book their own events.
+export async function isEventCreatedBy(eventId: string, userId: string): Promise<boolean> {
+    await connectDB();
+    return (await Event.exists({ _id: eventId, createdBy: userId })) !== null;
+}
+
 // The calendar's search matches the title, a tag, the city or the format name ("online", "hybrid"…).
 function buildCalendarFilter({ q, formats, topics, city }: CalendarSearch): FilterQuery<EventFields> {
     const conditions: FilterQuery<EventFields>[] = [{ date: { $gte: today() } }];
